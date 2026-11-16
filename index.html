@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#14343a">
-  <meta name="description" content="行政工作台：随手记录、合同到期、办公用品领用与台账导入导出。">
+  <meta name="description" content="行政工作台：随手记录、合同节点、办公用品台账、流程提示和 CSV 导入导出。">
   <title>行政工作台 · 事项与台账</title>
   <style>
     :root{--ink:#18343b;--muted:#6d8285;--teal:#0b6867;--line:#dbe6e4;--paper:#f3f7f5;--white:#fff;--amber:#f3b350;--red:#a74c3d}
@@ -19,7 +19,7 @@
 <body>
 <div class="shell">
   <aside class="side"><div class="brand">行政工作台</div><div class="brand-sub">ADMIN OPERATIONS / WORKBENCH</div><nav class="nav" aria-label="功能导航">
-    <button data-page="home" class="active">◫　今日总览</button><button data-page="inbox">✎　随手记事</button><button data-page="contracts">▤　合同节点</button><button data-page="supplies">◈　用品台账</button><button data-page="data">⇄　导入与导出</button>
+    <button data-page="home" class="active">◫　今日总览</button><button data-page="inbox">✎　随手记事</button><button data-page="contracts">▤　合同节点</button><button data-page="supplies">◈　用品台账</button><button data-page="guides">▣　流程提示</button><button data-page="data">⇄　导入与导出</button>
   </nav><div class="side-foot">把分散的交代变成有负责人、有日期、有结果的事项。<br>行政工作台 · 示例数据</div></aside>
   <main>
     <header class="top"><div><span class="eyebrow">PERSONAL ADMIN WORKBENCH</span><h1 id="pageTitle">今天，先处理什么？</h1><div class="muted" id="todayText"></div></div><div class="pill">行政事务管理</div></header>
@@ -35,7 +35,33 @@
     </section>
     <section id="contracts" class="section"><div class="panel"><h2>合同节点</h2><p class="muted">记录合同到期日与提前提醒天数。处理状态、下一步和责任人一起留在台账里。</p><div class="formgrid"><label>合同编号<input id="cId" placeholder="HT-003"></label><label>合同名称<input id="cName" placeholder="如：办公设备维护合同"></label><label>到期日<input id="cDue" type="date"></label><label>提前提醒天数<input id="cDays" type="number" min="0" value="30"></label><label>责任人<input id="cOwner" placeholder="如：行政"></label><label>下一步动作<input id="cNext" placeholder="如：联系对方确认续签"></label></div><div class="actions"><button class="primary" id="addContract">新增合同</button></div></div><div class="panel"><div class="head"><h3>合同台账</h3><span class="muted">按到期日排列</span></div><div class="tablewrap"><table><thead><tr><th>合同编号／名称</th><th>到期日</th><th>提前提醒</th><th>节点状态</th><th>责任人／下一步</th><th>操作</th></tr></thead><tbody id="contractRows"></tbody></table></div></div></section>
     <section id="supplies" class="section"><div class="panel"><h2>用品流转</h2><p class="muted">采购入库和员工领用分别登记，库存由流水自动计算。</p><div class="formgrid"><label>用品名称<input id="sName" placeholder="如：A4 打印纸"></label><label>类型<select id="sType"><option value="in">采购入库</option><option value="out">领用出库</option></select></label><label>数量<input id="sQty" type="number" min="1" step="1" placeholder="数量"></label><label>购买方／领取人<input id="sPerson" placeholder="如：采购员／领取人"></label><label>发生日期<input id="sDate" type="date"></label><label>备注<input id="sNote" placeholder="如：订单号、领用部门"></label></div><div class="actions"><button class="primary" id="addStock">登记这笔流转</button></div></div><div class="cols"><div class="panel"><div class="head"><h3>当前库存</h3><span class="muted">按名称汇总</span></div><div id="stockSummary"></div></div><div class="panel"><div class="head"><h3>最近流水</h3><span class="muted">留痕记录</span></div><div id="stockHistory"></div></div></div></section>
-    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">当前支持 Excel 可打开的 CSV 文件。可分别导出待办、合同和用品流水；导入时逐行追加并跳过重复编号。原有复杂 Excel 模板、双向差异核对和跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option></select></label><label>选择 CSV 文件<input type="file" id="importFile" accept=".csv,text/csv"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。导入前先显示条数和前几行，确认后才写入本机数据；本功能不会改动你的原始文件。</p></div></section>
+
+    <section id="guides" class="section">
+      <div class="cols"><div class="panel">
+        <h2>流程提示</h2>
+        <p class="muted">把常做却容易忘的步骤、原因、联系人和资料记下来。初始内容仅供参考，请以所在公司的实际制度和办事要求为准。</p>
+        <input type="hidden" id="gId">
+        <div class="formgrid">
+          <label>类别<input id="gCategory" placeholder="例如：报销／物业／证照"></label>
+          <label>流程名称<input id="gTitle" placeholder="例如：办公用品报销"></label>
+          <label class="span2">办理步骤（每行一步）<textarea id="gSteps" placeholder="核对票据与申请内容&#10;按公司规定提交审批"></textarea></label>
+          <label class="span2">为什么这样做／注意事项<textarea id="gReason" placeholder="例如：先确认预算和票据，减少退回补正"></textarea></label>
+          <label>对接人／部门<input id="gContact" placeholder="例如：财务部；请填公司实际联系人"></label>
+          <label>电话／其他联系方式<input id="gPhone" placeholder="仅保存在当前浏览器"></label>
+          <label>办理地点／线上入口<input id="gLocation" placeholder="例如：物业服务台／线上系统"></label>
+          <label>需准备的材料<input id="gMaterials" placeholder="例如：申请表、票据、资质扫描件"></label>
+          <label>到期日（没有可留空）<input id="gDue" type="date"></label>
+          <label>提前提醒天数<input id="gDays" type="number" min="0" value="30"></label>
+        </div>
+        <div class="actions"><button class="primary" id="saveGuide">保存流程</button><button class="ghost" id="clearGuide">清空表单</button></div>
+        <div class="note">到期提示会在打开工作台时显示。这里录入的联系人、电话和流程仅保存在当前浏览器；公开网页的源码不会收录你填写的内容。避免在共用设备上存放敏感资料。</div>
+      </div><div class="panel">
+        <div class="head"><h3>查找流程</h3><span class="tag" id="guideCount">0 条</span></div>
+        <input id="guideSearch" style="width:100%" placeholder="搜索报销、物业、证照、联系人、地点">
+        <div id="guideList" style="margin-top:12px"></div>
+      </div></div>
+    </section>
+    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">当前支持 Excel 可打开的 CSV 文件。可分别导出待办、合同、用品流水和流程提示；导入时逐行追加并跳过重复编号。原有复杂 Excel 模板、双向差异核对和跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 文件<input type="file" id="importFile" accept=".csv,text/csv"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。导入前先显示条数和前几行，确认后才写入本机数据；本功能不会改动你的原始文件。</p></div></section>
     <footer class="footer">行政工作台 · 事项、合同与用品管理。初始示例记录均为虚构。访问者在自己的浏览器中独立使用，不会看到他人的记录。</footer>
   </main>
 </div>
@@ -44,14 +70,15 @@
 (() => {
   const key='admin-workbench-demo-v1';
   const day=(n=0)=>{let d=new Date();d.setDate(d.getDate()+n);return d.toLocaleDateString('en-CA')};
-  const sample=()=>({tasks:[{id:'T-001',title:'核对部门会议物料清单',due:day(0),owner:'行政',next:'与负责人确认缺项',done:false},{id:'T-002',title:'跟进供应商设备维修报价',due:day(2),owner:'行政',next:'催回报价并比较交付时间',done:false}],contracts:[{id:'HT-001',name:'办公设备维护合同',due:day(18),days:30,owner:'行政',next:'联系供应商确认续签安排',done:false},{id:'HT-002',name:'场地服务合同',due:day(53),days:30,owner:'行政',next:'核对服务期和预算',done:false}],stock:[{id:'S-001',name:'A4打印纸',type:'in',qty:20,person:'采购员',date:day(-8),note:'示例采购'},{id:'S-002',name:'A4打印纸',type:'out',qty:3,person:'办公室',date:day(-2),note:'示例领用'},{id:'S-003',name:'中性笔',type:'in',qty:40,person:'采购员',date:day(-5),note:'示例采购'}]});
-  let db;try{db=JSON.parse(localStorage.getItem(key))||sample()}catch{db=sample()}const persist=()=>localStorage.setItem(key,JSON.stringify(db));
+  const guideExamples=()=>[{id:'G-001',category:'报销',title:'示例｜费用报销',steps:'核对报销内容和票据\n按公司规定确认预算与审批人\n提交报销申请并留存回单',reason:'先核对材料与审批顺序，减少遗漏和退回；具体签字人请按公司制度填写。',contact:'待填写：实际审批人／财务联系人',phone:'',location:'待填写：公司报销系统或提交地点',materials:'待填写：公司规定的票据与申请材料',due:'',days:30},{id:'G-002',category:'物业',title:'示例｜物业报修对接',steps:'记录问题、位置与发生时间\n联系物业并说明情况\n跟进处理进度和验收结果',reason:'先留存现场信息，便于沟通、跟进及复盘。',contact:'待填写：物业联系人',phone:'',location:'待填写：物业服务台',materials:'待填写：照片／报修单',due:'',days:30},{id:'G-003',category:'证照',title:'示例｜证照到期与更新',steps:'核实证照名称、到期日及办理渠道\n向主管部门核对最新要求与材料\n按实际流程办理并记录新有效期',reason:'主管部门、办理地点与材料可能变化，办理前需核实。',contact:'待填写：内部责任人',phone:'',location:'待填写：办事地点或官网',materials:'待填写：实际要求的材料',due:'',days:30}];
+  const sample=()=>({tasks:[{id:'T-001',title:'核对部门会议物料清单',due:day(0),owner:'行政',next:'与负责人确认缺项',done:false},{id:'T-002',title:'跟进供应商设备维修报价',due:day(2),owner:'行政',next:'催回报价并比较交付时间',done:false}],contracts:[{id:'HT-001',name:'办公设备维护合同',due:day(18),days:30,owner:'行政',next:'联系供应商确认续签安排',done:false},{id:'HT-002',name:'场地服务合同',due:day(53),days:30,owner:'行政',next:'核对服务期和预算',done:false}],stock:[{id:'S-001',name:'A4打印纸',type:'in',qty:20,person:'采购员',date:day(-8),note:'示例采购'},{id:'S-002',name:'A4打印纸',type:'out',qty:3,person:'办公室',date:day(-2),note:'示例领用'},{id:'S-003',name:'中性笔',type:'in',qty:40,person:'采购员',date:day(-5),note:'示例采购'}],guides:guideExamples()});
+  let db;try{db=JSON.parse(localStorage.getItem(key))||sample()}catch{db=sample()}const persist=()=>localStorage.setItem(key,JSON.stringify(db));if(!Array.isArray(db.guides)){db.guides=guideExamples();persist()}
   const $=id=>document.getElementById(id),safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const diff=s=>Math.ceil((new Date(s+'T12:00:00')-new Date(day()+'T12:00:00'))/86400000);
   const status=(due,days=0,done=false)=>done?['已完成','tag']:diff(due)<0?['已逾期','tag danger']:diff(due)===0?['今天到期','tag danger']:diff(due)<=days?['进入提醒窗口','tag warn']:['正常','tag'];
   const toast=s=>{let n=$('toast');n.textContent=s;n.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.style.display='none',3300)};
   function render(){
-    const active=db.tasks.filter(t=>!t.done),alerts=db.contracts.filter(c=>!c.done&&diff(c.due)<=Number(c.days));
+    const active=db.tasks.filter(t=>!t.done),alerts=db.contracts.filter(c=>!c.done&&diff(c.due)<=Number(c.days)),guideAlerts=db.guides.filter(g=>g.due&&Number.isFinite(diff(g.due))&&diff(g.due)<=Number(g.days));
     $('todayText').textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
     $('heroCount').textContent=$('statOpen').textContent=active.length;$('statUrgent').textContent=active.filter(t=>diff(t.due)<=0).length;
     $('statContract').textContent=alerts.length;$('statStock').textContent=new Set(db.stock.map(s=>s.name)).size;$('taskCount').textContent=db.tasks.length+' 条';
@@ -59,25 +86,65 @@
     $('allTasks').innerHTML=db.tasks.length?db.tasks.slice().sort((a,b)=>Number(a.done)-Number(b.done)||a.due.localeCompare(b.due)).map(taskHTML).join(''):'<div class="empty">还没有待办。先把一件事记下来吧。</div>';
     $('homeTasks').innerHTML=active.length?active.slice().sort((a,b)=>a.due.localeCompare(b.due)).slice(0,4).map(taskHTML).join(''):'<div class="empty">今天的队列已经清空。</div>';
     $('homeAlerts').innerHTML=alerts.length?alerts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(c=>'<div class="item"><div><b>'+safe(c.name)+'</b><p>'+safe(c.id)+' · 到期 '+safe(c.due)+'</p></div><span class="'+status(c.due,c.days)[1]+'">'+status(c.due,c.days)[0]+'</span></div>').join(''):'<div class="empty">暂时没有进入提醒窗口的合同。</div>';
+    if(guideAlerts.length)$('homeAlerts').innerHTML+=guideAlerts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(g=>'<div class="item"><div><b>'+safe(g.title)+'</b><p>流程提醒 · 到期 '+safe(g.due)+' · '+safe(g.contact||'待指定联系人')+'</p></div><span class="'+status(g.due,g.days)[1]+'">'+status(g.due,g.days)[0]+'</span></div>').join('');
     $('contractRows').innerHTML=db.contracts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(c=>'<tr><td>'+safe(c.id)+'<br><span class="muted">'+safe(c.name)+'</span></td><td>'+safe(c.due)+'</td><td>'+safe(c.days)+' 天</td><td><span class="'+status(c.due,c.days,c.done)[1]+'">'+status(c.due,c.days,c.done)[0]+'</span></td><td>'+safe(c.owner||'—')+'<br><span class="muted">'+safe(c.next||'—')+'</span></td><td><button class="ghost tiny" data-contract="'+safe(c.id)+'">'+(c.done?'恢复跟进':'标记已处理')+'</button></td></tr>').join('');
     const balances={};for(const s of db.stock)balances[s.name]=(balances[s.name]||0)+(s.type==='in'?Number(s.qty):-Number(s.qty));
     $('stockSummary').innerHTML=Object.keys(balances).length?Object.entries(balances).map(([n,q])=>'<div class="item"><b>'+safe(n)+'</b><span class="'+(q<0?'tag danger':'tag')+'">'+q+' 件</span></div>').join(''):'<div class="empty">还没有用品记录。</div>';
     $('stockHistory').innerHTML=db.stock.slice().reverse().slice(0,6).map(s=>'<div class="item"><div><b>'+safe(s.name)+' · '+(s.type==='in'?'入库':'领用')+' '+safe(s.qty)+'</b><p>'+safe(s.date)+' · '+safe(s.person)+' · '+safe(s.note||'')+'</p></div></div>').join('');
+    renderGuides();
   }
-  function page(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('pageTitle').textContent=({home:'今天，先处理什么？',inbox:'让交代都有下文',contracts:'每份合同都有节点',supplies:'每笔领用都有记录',data:'把台账带进带出'})[id];window.scrollTo({top:0,behavior:'smooth'})}
+  function page(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('pageTitle').textContent=({home:'今天，先处理什么？',inbox:'让交代都有下文',contracts:'每份合同都有节点',supplies:'每笔领用都有记录',guides:'每一步都有提示',data:'把台账带进带出'})[id];window.scrollTo({top:0,behavior:'smooth'})}
   document.addEventListener('click',e=>{let el=e.target.closest('[data-page],[data-goto],[data-task],[data-contract],[data-export]');if(!el)return;if(el.dataset.page||el.dataset.goto)page(el.dataset.page||el.dataset.goto);if(el.dataset.task){let t=db.tasks.find(x=>x.id===el.dataset.task);if(t){t.done=!t.done;persist();render()}}if(el.dataset.contract){let c=db.contracts.find(x=>x.id===el.dataset.contract);if(c){c.done=!c.done;persist();render()}}if(el.dataset.export)exportCSV(el.dataset.export)});
+
+  const guideFields=['category','title','steps','reason','contact','phone','location','materials','due','days'];
+  const guideFieldId=k=>'g'+k[0].toUpperCase()+k.slice(1);
+  function renderGuides(){
+    let query=$('guideSearch').value.trim().toLowerCase();
+    let matches=db.guides.filter(g=>[g.category,g.title,g.steps,g.reason,g.contact,g.phone,g.location,g.materials].some(x=>String(x||'').toLowerCase().includes(query)));
+    $('guideCount').textContent=db.guides.length+' 条';
+    $('guideList').innerHTML=matches.length?matches.map(g=>{
+      let steps=String(g.steps||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(s=>'<li>'+safe(s)+'</li>').join('');
+      let reminder=g.due?'<span class="'+status(g.due,g.days)[1]+'">'+status(g.due,g.days)[0]+' · '+safe(g.due)+'</span>':'';
+      return '<details class="panel" style="margin:12px 0;padding:15px"><summary style="cursor:pointer"><b>'+safe(g.title)+'</b> <span class="tag">'+safe(g.category||'其他')+'</span> '+reminder+'</summary>'+
+        '<div class="muted" style="margin-top:12px"><b>办理步骤</b><ol>'+steps+'</ol>'+
+        '<p><b>原因／注意：</b>'+safe(g.reason||'待补充')+'</p><p><b>对接：</b>'+safe(g.contact||'待补充')+' · '+safe(g.phone||'未填电话')+'</p>'+
+        '<p><b>地点／入口：</b>'+safe(g.location||'待补充')+'</p><p><b>所需材料：</b>'+safe(g.materials||'待补充')+'</p>'+
+        (g.due?'<p><b>提醒：</b>到期 '+safe(g.due)+'，提前 '+safe(g.days)+' 天</p>':'')+'</div>'+
+        '<div class="actions"><button class="ghost tiny" data-guide-edit="'+safe(g.id)+'">编辑</button><button class="ghost tiny red" data-guide-remove="'+safe(g.id)+'">删除</button></div></details>';
+    }).join(''):'<div class="empty">没有匹配的流程。可以在左侧新增。</div>';
+  }
+  function clearGuide(){
+    $('gId').value='';for(const k of guideFields)$(guideFieldId(k)).value=k==='days'?'30':'';$('saveGuide').textContent='保存流程';
+  }
+  $('guideSearch').addEventListener('input',renderGuides);
+  $('clearGuide').onclick=clearGuide;
+  $('saveGuide').onclick=()=>{
+    let title=$('gTitle').value.trim(),steps=$('gSteps').value.trim(),days=Number($('gDays').value);
+    if(!title||!steps)return toast('请填写流程名称和办理步骤');
+    if(!Number.isInteger(days)||days<0)return toast('提前提醒天数请输入非负整数');
+    let entry={};for(const k of guideFields)entry[k]=k==='days'?days:$(guideFieldId(k)).value.trim();
+    let id=$('gId').value,idx=id?db.guides.findIndex(g=>g.id===id):-1;
+    if(id&&idx<0)return toast('这条流程已不存在，请重新填写');
+    if(idx<0)db.guides.push({id:'G-'+Date.now(),...entry});else db.guides[idx]={...db.guides[idx],...entry};
+    persist();render();clearGuide();toast('流程已保存');
+  };
+  $('guideList').addEventListener('click',e=>{
+    let edit=e.target.closest('[data-guide-edit]'),remove=e.target.closest('[data-guide-remove]');
+    if(edit){let g=db.guides.find(x=>x.id===edit.dataset.guideEdit);if(!g)return;$('gId').value=g.id;for(const k of guideFields)$(guideFieldId(k)).value=g[k]??'';$('saveGuide').textContent='保存修改';window.scrollTo({top:0,behavior:'smooth'})}
+    if(remove){let g=db.guides.find(x=>x.id===remove.dataset.guideRemove);if(!g||!confirm('删除流程“'+g.title+'”？'))return;db.guides=db.guides.filter(x=>x.id!==g.id);if($('gId').value===g.id)clearGuide();persist();render();toast('流程已删除')}
+  });
   const nextWeekday=(n)=>{let d=new Date(),offset=(n-d.getDay()+7)%7;return day(offset)};
   $('parseBtn').onclick=()=>{let s=$('capture').value.trim();if(!s)return toast('先写下一句话');let due=day(1);if(/今天/.test(s))due=day();else if(/后天/.test(s))due=day(2);else if(/明天/.test(s))due=day(1);else {let wd=s.match(/(?:下)?周([一二三四五六日天])/);if(wd){let m={'日':0,'天':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6};let n=m[wd[1]],delta=(n-new Date().getDay()+7)%7+(wd[0].startsWith('下')?7:0);due=day(delta)}let explicit=s.match(/(\d{1,2})月(\d{1,2})[日号]?/);if(explicit){let year=new Date().getFullYear(),candidate=new Date(year,Number(explicit[1])-1,Number(explicit[2]));if(candidate.getMonth()===Number(explicit[1])-1&&candidate.getDate()===Number(explicit[2])){if(candidate<new Date(day()))year++;due=[year,String(explicit[1]).padStart(2,'0'),String(explicit[2]).padStart(2,'0')].join('-')}}} $('draftTitle').value=s.replace(/^(领导让我|让我|记一下|提醒我)/,'').trim();$('draftDue').value=due;$('draftOwner').value='我';$('draftNext').value='确认需求并推进';$('draftPanel').hidden=false;toast('已整理成草稿，请核对日期与事项')};
   $('saveDraft').onclick=()=>{let title=$('draftTitle').value.trim(),due=$('draftDue').value;if(!title||!due)return toast('请补全事项和截止日期');db.tasks.push({id:'T-'+Date.now(),title,due,owner:$('draftOwner').value.trim(),next:$('draftNext').value.trim(),done:false});persist();render();$('draftPanel').hidden=true;$('capture').value='';toast('已加入工作队列')};$('cancelDraft').onclick=()=>$('draftPanel').hidden=true;
   $('addContract').onclick=()=>{let id=$('cId').value.trim(),name=$('cName').value.trim(),due=$('cDue').value;if(!id||!name||!due)return toast('请填写合同编号、名称和到期日');if(db.contracts.some(c=>c.id===id))return toast('合同编号已存在');db.contracts.push({id,name,due,days:Math.max(0,Number($('cDays').value)||0),owner:$('cOwner').value.trim(),next:$('cNext').value.trim(),done:false});persist();render();['cId','cName','cDue','cOwner','cNext'].forEach(i=>$(i).value='');toast('合同已加入节点台账')};
   $('sDate').value=day();$('addStock').onclick=()=>{let name=$('sName').value.trim(),qty=Number($('sQty').value),type=$('sType').value;if(!name||!Number.isInteger(qty)||qty<=0||!$('sDate').value)return toast('请填写用品名称、正整数数量和日期');let bal=db.stock.filter(s=>s.name===name).reduce((n,s)=>n+(s.type==='in'?Number(s.qty):-Number(s.qty)),0);if(type==='out'&&qty>bal)return toast('领用数量不能超过当前库存 '+bal);db.stock.push({id:'S-'+Date.now(),name,type,qty,person:$('sPerson').value.trim()||'未记录',date:$('sDate').value,note:$('sNote').value.trim()});persist();render();['sName','sQty','sPerson','sNote'].forEach(i=>$(i).value='');toast('流水已登记')};
-  const cols={tasks:['id','title','due','owner','next','done'],contracts:['id','name','due','days','owner','next','done'],stock:['id','name','type','qty','person','date','note']};
+  const cols={tasks:['id','title','due','owner','next','done'],contracts:['id','name','due','days','owner','next','done'],stock:['id','name','type','qty','person','date','note'],guides:['id','category','title','steps','reason','contact','phone','location','materials','due','days']};
   const csvField=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
-  function exportCSV(type){let rows=[cols[type].join(','),...db[type].map(row=>cols[type].map(k=>csvField(row[k])).join(','))];let blob=new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=({tasks:'行政待办',contracts:'合同节点',stock:'用品流水'})[type]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+  function exportCSV(type){let rows=[cols[type].join(','),...db[type].map(row=>cols[type].map(k=>csvField(row[k])).join(','))];let blob=new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=({tasks:'行政待办',contracts:'合同节点',stock:'用品流水',guides:'流程提示'})[type]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   function parseCSV(text){text=text.replace(/^\ufeff/,'');let records=[],row=[],field='',quotes=false;for(let i=0;i<text.length;i++){let c=text[i];if(quotes){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quotes=false;else field+=c}else if(c==='"')quotes=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));records.push(row);row=[];field=''}else field+=c}if(field||row.length){row.push(field.replace(/\r$/,''));records.push(row)}return records.filter(r=>r.some(x=>x.trim()))}
   let pending=null;
-  $('importBtn').onclick=async()=>{let f=$('importFile').files[0],type=$('importType').value;if(!f)return toast('先选择一个 CSV 文件');if(f.size>2e6)return toast('请选择小于 2 MB 的 CSV 文件');let rows=parseCSV(await f.text()),header=rows.shift()||[],missing=cols[type].filter(c=>!header.includes(c));if(missing.length)return toast('列名不匹配，缺少：'+missing.join('、'));let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,r[header.indexOf(c)]]))).filter(x=>x.id);let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});pending={type,items:newItems};$('importPreview').innerHTML='<div class="note">文件共 '+items.length+' 条，其中 '+newItems.length+' 条为新编号，将追加到“'+({tasks:'待办',contracts:'合同',stock:'用品流水'})[type]+'”。<br>预览：'+newItems.slice(0,3).map(x=>safe(x.id)+' · '+safe(x.title||x.name)).join('；')+'</div><button class="primary" id="confirmImport">确认导入 '+newItems.length+' 条</button>';};
-  $('importPreview').addEventListener('click',e=>{if(e.target.id!=='confirmImport'||!pending)return;for(let x of pending.items){if(pending.type==='tasks'||pending.type==='contracts')x.done=x.done===true||x.done==='true';if(pending.type==='stock')x.qty=Number(x.qty)||0;if(pending.type==='contracts')x.days=Number(x.days)||0}db[pending.type].push(...pending.items);persist();render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').innerHTML='';$('importFile').value=''});
+  $('importBtn').onclick=async()=>{let f=$('importFile').files[0],type=$('importType').value;if(!f)return toast('先选择一个 CSV 文件');if(f.size>2e6)return toast('请选择小于 2 MB 的 CSV 文件');let rows=parseCSV(await f.text()),header=rows.shift()||[],missing=cols[type].filter(c=>!header.includes(c));if(missing.length)return toast('列名不匹配，缺少：'+missing.join('、'));let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,r[header.indexOf(c)]]))).filter(x=>x.id);let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});pending={type,items:newItems};$('importPreview').innerHTML='<div class="note">文件共 '+items.length+' 条，其中 '+newItems.length+' 条为新编号，将追加到“'+({tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示'})[type]+'”。<br>预览：'+newItems.slice(0,3).map(x=>safe(x.id)+' · '+safe(x.title||x.name)).join('；')+'</div><button class="primary" id="confirmImport">确认导入 '+newItems.length+' 条</button>';};
+  $('importPreview').addEventListener('click',e=>{if(e.target.id!=='confirmImport'||!pending)return;for(let x of pending.items){if(pending.type==='tasks'||pending.type==='contracts')x.done=x.done===true||x.done==='true';if(pending.type==='stock')x.qty=Number(x.qty)||0;if(pending.type==='contracts'||pending.type==='guides')x.days=Number(x.days)||0}db[pending.type].push(...pending.items);persist();render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').innerHTML='';$('importFile').value=''});
   $('resetBtn').onclick=()=>{if(!confirm('恢复示例数据将清除当前浏览器里的所有工作记录，确定继续？'))return;db=sample();persist();render();toast('已恢复示例数据')};
   render();
 })();
