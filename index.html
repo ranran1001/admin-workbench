@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#14343a">
-  <meta name="description" content="行政工作台：随手记录、合同节点、办公用品台账、流程提示和 CSV 导入导出。">
+  <meta name="description" content="行政工作台：随手记录、合同节点、办公用品台账、流程提示、CSV 导入导出和完整迁移备份。">
   <title>行政工作台 · 事项与台账</title>
   <style>
     :root{--ink:#18343b;--muted:#6d8285;--teal:#0b6867;--line:#dbe6e4;--paper:#f3f7f5;--white:#fff;--amber:#f3b350;--red:#a74c3d}
@@ -61,7 +61,7 @@
         <div id="guideList" style="margin-top:12px"></div>
       </div></div>
     </section>
-    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">当前支持 Excel 可打开的 CSV 文件。可分别导出待办、合同、用品流水和流程提示；导入时逐行追加并跳过重复编号。原有复杂 Excel 模板、双向差异核对和跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 文件<input type="file" id="importFile" accept=".csv,text/csv"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。导入前先显示条数和前几行，确认后才写入本机数据；本功能不会改动你的原始文件。</p></div></section>
+    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">当前支持 Excel 可打开的 CSV 文件。可分别导出待办、合同、用品流水和流程提示；导入时逐行追加并跳过重复编号。原有复杂 Excel 模板、双向差异核对和跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 文件<input type="file" id="importFile" accept=".csv,text/csv"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel" id="migrationPanel"><h2>换电脑 · 完整迁移</h2><p class="muted">一个 ZIP 包含网页程序、全部四类台账数据、二维码与迁移说明。换电脑后解压，打开工作台并选择其中的 backup.json 恢复。当前版本没有单独的设置项目。</p><div class="actions"><button class="primary" id="downloadPackage">下载完整迁移包 ZIP</button><button class="soft" id="downloadBackup">只下载数据 JSON</button></div><div class="formgrid" style="margin-top:18px"><label>选择备份 JSON 文件<input type="file" id="restoreFile" accept=".json,application/json"></label></div><div class="actions"><button class="ghost" id="previewRestore">预览恢复内容</button></div><div id="restorePreview"></div><p class="muted">恢复会替换本浏览器的四类台账，请先下载当前数据备份。迁移包中可能有私人资料，请妥善保存；手机与电脑之间仍需手动传递备份。</p></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。导入前先显示条数和前几行，确认后才写入本机数据；本功能不会改动你的原始文件。</p></div></section>
     <footer class="footer">行政工作台 · 事项、合同与用品管理。初始示例记录均为虚构。访问者在自己的浏览器中独立使用，不会看到他人的记录。</footer>
   </main>
 </div>
@@ -142,7 +142,44 @@
   const csvField=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
   function exportCSV(type){let rows=[cols[type].join(','),...db[type].map(row=>cols[type].map(k=>csvField(row[k])).join(','))];let blob=new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=({tasks:'行政待办',contracts:'合同节点',stock:'用品流水',guides:'流程提示'})[type]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   function parseCSV(text){text=text.replace(/^\ufeff/,'');let records=[],row=[],field='',quotes=false;for(let i=0;i<text.length;i++){let c=text[i];if(quotes){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quotes=false;else field+=c}else if(c==='"')quotes=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));records.push(row);row=[];field=''}else field+=c}if(field||row.length){row.push(field.replace(/\r$/,''));records.push(row)}return records.filter(r=>r.some(x=>x.trim()))}
-  let pending=null;
+  
+   const backupObject=()=>({format:'admin-workbench-backup',version:1,exportedAt:new Date().toISOString(),data:db});
+   const backupText=()=>JSON.stringify(backupObject(),null,2);
+   function downloadBlob(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
+   $('downloadBackup').onclick=()=>downloadBlob(new Blob([backupText()],{type:'application/json;charset=utf-8'}),'行政工作台-完整数据备份-'+day()+'.json');
+   const encoder=new TextEncoder(),bytes16=n=>[n&255,n>>>8&255],bytes32=n=>[n&255,n>>>8&255,n>>>16&255,n>>>24&255];
+   const crcTable=Array.from({length:256},(_,i)=>{let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;return c>>>0});
+   function crc32(data){let c=0xffffffff;for(let b of data)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0}
+   function zipFiles(files){let local=[],central=[],position=0;
+     for(let [name,content] of files){let n=encoder.encode(name),d=encoder.encode(content),sum=crc32(d);
+       let h=new Uint8Array([...bytes32(0x04034b50),...bytes16(20),...bytes16(0x0800),...bytes16(0),...bytes16(0),...bytes16(0),...bytes32(sum),...bytes32(d.length),...bytes32(d.length),...bytes16(n.length),...bytes16(0),...n]);local.push(h,d);
+       central.push(new Uint8Array([...bytes32(0x02014b50),...bytes16(20),...bytes16(20),...bytes16(0x0800),...bytes16(0),...bytes16(0),...bytes16(0),...bytes32(sum),...bytes32(d.length),...bytes32(d.length),...bytes16(n.length),...bytes16(0),...bytes16(0),...bytes16(0),...bytes16(0),...bytes32(0),...bytes32(position),...n]));position+=h.length+d.length}
+     let size=central.reduce((v,x)=>v+x.length,0),count=files.length;
+     return new Blob([...local,...central,new Uint8Array([...bytes32(0x06054b50),...bytes16(0),...bytes16(0),...bytes16(count),...bytes16(count),...bytes32(size),...bytes32(position),...bytes16(0)])],{type:'application/zip'})
+   }
+   $('downloadPackage').onclick=async()=>{let button=$('downloadPackage');button.disabled=true;
+     try{let html;try{let r=await fetch(new URL('index.html',location.href),{cache:'no-store'});if(!r.ok)throw Error('fetch');html=await r.text()}catch{html='<!doctype html>\n'+document.documentElement.outerHTML}
+       let instructions='行政工作台完整迁移包\r\n\r\n1. 在新电脑打开 https://ranran1001.github.io/admin-workbench/ 。\r\n2. 点击“导入与导出”，找到“换电脑 · 完整迁移”，选择压缩包内的 backup.json。\r\n3. 预览四类台账条数后确认恢复。\r\n4. index.html 是网页程序副本；qr.svg 是二维码。本地直接打开 HTML 时浏览器可能限制数据保存，建议从上述网址恢复使用。\r\n5. 新旧设备不会自动同步；之后每次转移需重新下载最新备份。不要把 backup.json 上传到公开仓库。\r\n';
+       let files=[['index.html',html],['backup.json',backupText()],['README.txt',instructions]];
+       try{let q=await fetch(new URL('qr.svg',location.href),{cache:'no-store'});if(q.ok)files.push(['qr.svg',await q.text()])}catch{}
+       downloadBlob(zipFiles(files),'行政工作台-完整迁移包-'+day()+'.zip');toast('完整迁移包已下载')
+     }catch{toast('打包失败，请先单独下载数据 JSON')}finally{button.disabled=false}
+   };
+   let pendingRestore=null;
+   function validBackup(x){return x&&x.format==='admin-workbench-backup'&&x.version===1&&x.data&&typeof x.data==='object'&&['tasks','contracts','stock','guides'].every(k=>Array.isArray(x.data[k])&&x.data[k].length<=100000&&x.data[k].every(v=>v&&typeof v==='object'&&!Array.isArray(v)&&typeof v.id==='string'&&v.id.length>0))}
+   $('restoreFile').onchange=()=>{pendingRestore=null;$('restorePreview').replaceChildren()};
+   $('previewRestore').onclick=async()=>{let f=$('restoreFile').files[0];if(!f)return toast('请先选择备份 JSON 文件');if(f.size>20e6)return toast('备份文件不能超过 20 MB');
+     try{let x=JSON.parse(await f.text());if(!validBackup(x))return toast('文件不是兼容的行政工作台完整备份');pendingRestore=x;
+       let labels={tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示'};
+       $('restorePreview').innerHTML='<div class="note">备份时间：'+safe(x.exportedAt||'未知')+'<br>'+Object.keys(labels).map(k=>labels[k]+' '+x.data[k].length+' 条').join(' · ')+'<br>恢复将替换当前浏览器的全部四类台账。</div><button class="primary" id="confirmRestore">确认恢复此备份</button>'
+     }catch{toast('无法读取备份 JSON 文件')}
+   };
+   $('restorePreview').onclick=e=>{if(e.target.id!=='confirmRestore'||!pendingRestore)return;
+     if(!confirm('这将覆盖此浏览器中的全部四类台账。请先下载当前备份，确定继续？'))return;
+     try{localStorage.setItem(key,JSON.stringify(pendingRestore.data))}catch{return toast('浏览器无法保存数据，请检查存储权限或空间')}
+     db=pendingRestore.data;pendingRestore=null;$('restorePreview').replaceChildren();$('restoreFile').value='';render();toast('四类台账已恢复')
+   };
+let pending=null;
   $('importBtn').onclick=async()=>{let f=$('importFile').files[0],type=$('importType').value;if(!f)return toast('先选择一个 CSV 文件');if(f.size>2e6)return toast('请选择小于 2 MB 的 CSV 文件');let rows=parseCSV(await f.text()),header=rows.shift()||[],missing=cols[type].filter(c=>!header.includes(c));if(missing.length)return toast('列名不匹配，缺少：'+missing.join('、'));let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,r[header.indexOf(c)]]))).filter(x=>x.id);let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});pending={type,items:newItems};$('importPreview').innerHTML='<div class="note">文件共 '+items.length+' 条，其中 '+newItems.length+' 条为新编号，将追加到“'+({tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示'})[type]+'”。<br>预览：'+newItems.slice(0,3).map(x=>safe(x.id)+' · '+safe(x.title||x.name)).join('；')+'</div><button class="primary" id="confirmImport">确认导入 '+newItems.length+' 条</button>';};
   $('importPreview').addEventListener('click',e=>{if(e.target.id!=='confirmImport'||!pending)return;for(let x of pending.items){if(pending.type==='tasks'||pending.type==='contracts')x.done=x.done===true||x.done==='true';if(pending.type==='stock')x.qty=Number(x.qty)||0;if(pending.type==='contracts'||pending.type==='guides')x.days=Number(x.days)||0}db[pending.type].push(...pending.items);persist();render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').innerHTML='';$('importFile').value=''});
   $('resetBtn').onclick=()=>{if(!confirm('恢复示例数据将清除当前浏览器里的所有工作记录，确定继续？'))return;db=sample();persist();render();toast('已恢复示例数据')};
