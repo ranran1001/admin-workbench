@@ -103,7 +103,8 @@
       <label>项目网址<input id="syncUrl" type="url" placeholder="https://你的项目.supabase.co"><span class="muted">复制 Project URL；若粘贴了 /rest/v1，也会自动去掉。</span></label>
       <label>公开密钥<input id="syncKey" placeholder="sb_publishable_... 或 anon key" autocomplete="off"><span class="muted">复制 publishable key 的值，不要填 secret key。</span></label>
       <label>登录邮箱<input id="syncEmail" type="email" placeholder="用于接收登录链接"></label>
-    </div><div class="actions"><button class="soft" id="syncConfigure">保存云端地址</button><button class="primary" id="syncLogin">发送登录链接</button><button class="ghost" id="syncLogout">退出云端登录</button></div>
+    </div><div class="actions"><button class="soft" id="syncConfigure">保存云端地址</button><button class="primary" id="syncLogin">发送登录链接</button><button class="ghost" id="syncPullNow">检查并下载云端数据</button><button class="ghost" id="syncLogout">退出云端登录</button></div>
+    <p class="muted" id="syncSession">未登录。手机收到邮件后，请在打开工作台的同一个浏览器里打开登录链接；微信等应用的内置浏览器与系统浏览器会分开保存登录状态。</p>
     <div class="note" id="syncStatus">仅本机保存 · 尚未设置云端</div>
     <div id="syncFirstRun" hidden><h3>第一次连接：先选择要保留的数据</h3><p class="muted" id="syncCounts"></p><div class="actions"><button class="soft" id="syncUpload">以本机数据建立云端副本</button><button class="ghost" id="syncDownload">下载云端数据到本机</button></div><p class="muted">选择前先下载完整备份。两种操作都可能覆盖另一端的数据；首次连接不自动合并。</p></div>
     <div id="syncConflict" hidden><h3>检测到两端修改</h3><p class="muted">已暂停上传，未覆盖本机或云端。先分别备份，再决定采用哪一份。</p><div class="actions"><button class="ghost" id="syncUseCloud">备份后采用云端</button><button class="soft" id="syncUseLocal">备份后采用本机</button></div></div>
@@ -414,7 +415,8 @@ let pending=null;
   let cloudClient=null,cloudUser=null,cloudRow=null,cloudRevision=0,cloudReady=false,cloudDirty=false,cloudBusy=false,cloudConflict=false,cloudChannel=null,cloudTimer=null;
   const cloudPrefix=()=>{let config=localStorage.getItem(cloudConfigKey)||'';return 'admin-workbench-cloud:'+config+':'+(cloudUser?.id||localStorage.getItem('admin-workbench-last-user')||'none')+':'};
   const cloudSetting=(name)=>cloudPrefix()+name;
-  function syncState(message){$('syncStatus').textContent=message;$('globalSyncState').textContent=message;$('wConnectState').textContent=cloudUser?'已登录云端；AI 函数需单独部署':'等待云端登录'}
+  function syncState(message){$('syncStatus').textContent=message;$('globalSyncState').textContent=message;$('wConnectState').textContent=cloudUser?'已登录云端；AI 函数需单独部署':'等待云端登录';
+    $('syncSession').textContent=cloudUser?'已登录：'+(cloudUser.email||'邮箱已验证')+'。云端：'+cloudCounts(cloudRow?.data)+'。':'未登录。请在打开工作台的同一个手机浏览器里点邮件登录链接；应用内置浏览器与系统浏览器的登录状态不共享。'}
   function markLocalChange(){
     if(!syncReady)return;
     let linked=cloudReady||!!localStorage.getItem(cloudSetting('linked'));
@@ -452,9 +454,9 @@ let pending=null;
     }catch(e){syncState('本机可用 · 云端检查失败：'+(e.message||'网络异常'))}
   }
   async function onCloudUser(user){
-    if(!user){cloudUser=null;cloudReady=false;syncState(cloudClient?'未登录 · 本机数据仍可使用':'已保存到本机 · 云端尚未配置');return}
+    if(!user){cloudUser=null;cloudRow=null;cloudReady=false;$('syncFirstRun').hidden=true;$('syncConflict').hidden=true;syncState(cloudClient?'未登录 · 本机数据仍可使用':'已保存到本机 · 云端尚未配置');return}
     if(cloudUser?.id===user.id)return;
-    cloudUser=user;localStorage.setItem('admin-workbench-last-user',user.id);$('syncEmail').value=user.email||'';
+    cloudUser=user;cloudRow=null;localStorage.setItem('admin-workbench-last-user',user.id);$('syncEmail').value=user.email||'';
     syncState('正在读取云端数据…');
     try{cloudRow=await fetchCloud();let stored=localStorage.getItem(cloudSetting('linked'))==='1',dirty=localStorage.getItem(cloudSetting('dirty'))==='1';
       if(stored&&cloudRow){
@@ -525,6 +527,24 @@ let pending=null;
     cloudBackup(db,'替换前本机备份');
     if(!confirm('云端数据将替换本机记录。已开始下载本机备份，确定继续？'))return;
     applyCloud(cloudRow)
+  };
+  $('syncPullNow').onclick=async()=>{
+    if(!cloudClient)return toast('请先在这台设备填写并保存项目网址和公开密钥');
+    if(!cloudUser)return toast('这台浏览器尚未登录：请在同一个浏览器打开邮箱登录链接');
+    let button=$('syncPullNow');button.disabled=true;syncState('正在检查云端数据…');
+    try{let row=await fetchCloud();cloudRow=row;
+      if(!row){syncState('此邮箱的云端还没有工作台记录');return toast('云端为空：请先在第一台设备登录同一项目和邮箱，上传本机数据并等到“已同步”')}
+      if(cloudReady){
+        if(Number(row.revision)===cloudRevision&&!cloudDirty){syncState('已同步 · 云端版本 '+cloudRevision);return toast('本机已是云端最新版本')}
+        if(cloudDirty){if(Number(row.revision)===cloudRevision){await syncPush();return}showConflict(row);return}
+        if(applyCloud(row))toast('已取得云端最新记录');return
+      }
+      $('syncFirstRun').hidden=false;$('syncCounts').textContent='本机：'+cloudCounts(db)+'。云端：'+cloudCounts(row.data)+'。';
+      syncState('云端已有数据 · 请先备份，再确认下载');
+      cloudBackup(db,'替换前本机备份');
+      if(confirm('已开始下载本机备份。确定用云端记录替换这台设备的本机记录？')){if(applyCloud(row))toast('云端记录已下载到本机')}
+    }catch(e){syncState('云端检查失败，本机数据仍在：'+(e.message||'请检查网络、项目设置或数据库'))}
+    finally{button.disabled=false}
   };
   $('syncUseCloud').onclick=()=>{if(!cloudRow)return;cloudBackup(db,'冲突本机备份');if(confirm('已开始下载本机备份。确定采用云端版本并替换本机？'))applyCloud(cloudRow)};
   $('syncUseLocal').onclick=async()=>{if(!cloudRow)return;cloudBackup(cloudRow.data,'冲突云端备份');if(!confirm('已开始下载云端备份。确定采用本机版本并覆盖云端？'))return;
