@@ -235,7 +235,7 @@
         if(col>100||col<0)throw Error('列数超出支持范围');next=col+1;
         let raw=child(cell,'v')?.textContent||'',type=cell.getAttribute('t');
         let value=type==='s'?strings[Number(raw)]??'':type==='inlineStr'?nodes(cell,'t').map(t=>t.textContent).join(''):raw;
-        if(dates.has(Number(cell.getAttribute('s')))&&!type&&raw)value=excelDate(raw);
+        if(dates.has(Number(cell.getAttribute('s')))&&(type===null||type==='n')&&raw)value=excelDate(raw);
         record[col]=value;
       }if(record.some(v=>String(v??'').trim()))rows.push(record)
       if(rows.length>100001)throw Error('超过十万行，请拆分文件')
