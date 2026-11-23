@@ -28,6 +28,7 @@
       <div class="hero"><div><span class="eyebrow" style="color:#9ddad0">ONE INBOX · CLEAR NEXT STEP</span><h2>接住琐事，追到结果。</h2><p>一句话收进临时交代；合同按日期进入提醒窗口；用品从购入到领用有据可查。<strong>所有事项都能回到今天的工作队列。</strong></p><button class="soft" data-goto="inbox">立即记一件事 →</button></div><div class="hero-stat"><b id="heroCount">0</b><span>件事项等待跟进</span></div></div>
       <div class="grid"><div class="card"><small>待处理事项</small><b id="statOpen">0</b><em>明确下一步</em></div><div class="card"><small>今天／已逾期</small><b id="statUrgent">0</b><em>优先处理</em></div><div class="card"><small>合同提醒</small><b id="statContract">0</b><em>进入提前提醒窗口</em></div><div class="card"><small>用品种类</small><b id="statStock">0</b><em>采购与领用留痕</em></div></div>
       <div class="cols"><div class="panel"><div class="head"><h3>我的工作队列</h3><button class="ghost tiny" data-goto="inbox">全部事项 →</button></div><div id="homeTasks"></div></div><div class="panel"><div class="head"><h3>近期节点</h3><button class="ghost tiny" data-goto="contracts">合同台账 →</button></div><div id="homeAlerts"></div></div></div>
+      <div class="panel"><h3>到期通知</h3><p class="muted">开启后，网页打开期间每日通知一次进入提醒期的待办、合同与流程；关闭网页后不会推送。下载日历文件并导入设备日历，可以交由日历应用在网页关闭时提醒。日历文件包含事项名称，请妥善保存。</p><div class="actions"><button class="soft" id="notifyBtn">开启浏览器通知</button><button class="ghost" id="calendarBtn">下载到期日历 .ics</button><span class="muted" id="notifyState"></span></div></div>
       <div class="panel"><div class="head"><h3>从记录到完成</h3><small>按步骤使用</small></div><div class="muted">输入交代 → 核对解析出的日期 → 放进待办 → 到期在工作队列提示 → 完成后留痕。手机可使用系统键盘自带的语音输入。</div></div>
     </section>
     <section id="inbox" class="section">
@@ -61,7 +62,7 @@
         <div id="guideList" style="margin-top:12px"></div>
       </div></div>
     </section>
-    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">当前支持 Excel 可打开的 CSV 文件。可分别导出待办、合同、用品流水和流程提示；导入时逐行追加并跳过重复编号。原有复杂 Excel 模板、双向差异核对和跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 文件<input type="file" id="importFile" accept=".csv,text/csv"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel" id="migrationPanel"><h2>换电脑 · 完整迁移</h2><p class="muted">一个 ZIP 包含网页程序、全部四类台账数据、二维码与迁移说明。换电脑后解压，打开工作台并选择其中的 backup.json 恢复。当前版本没有单独的设置项目。</p><div class="actions"><button class="primary" id="downloadPackage">下载完整迁移包 ZIP</button><button class="soft" id="downloadBackup">只下载数据 JSON</button></div><div class="formgrid" style="margin-top:18px"><label>选择备份 JSON 文件<input type="file" id="restoreFile" accept=".json,application/json"></label></div><div class="actions"><button class="ghost" id="previewRestore">预览恢复内容</button></div><div id="restorePreview"></div><p class="muted">恢复会替换本浏览器的四类台账，请先下载当前数据备份。迁移包中可能有私人资料，请妥善保存；手机与电脑之间仍需手动传递备份。</p></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。导入前先显示条数和前几行，确认后才写入本机数据；本功能不会改动你的原始文件。</p></div></section>
+    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">支持 CSV 与标准 .xlsx 文件（读取第一个工作表）。按对应台账的英文列名填写；导入先预览，再按编号追加并跳过重复。复杂合并单元格与旧版 .xls 暂不支持；跨设备实时同步尚未接入。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 或 .xlsx 文件<input type="file" id="importFile" accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel" id="migrationPanel"><h2>换电脑 · 完整迁移</h2><p class="muted">一个 ZIP 包含网页程序、全部四类台账数据、二维码与迁移说明。换电脑后解压，打开工作台并选择其中的 backup.json 恢复。浏览器通知权限属于设备设置，不随数据迁移。</p><div class="actions"><button class="primary" id="downloadPackage">下载完整迁移包 ZIP</button><button class="soft" id="downloadBackup">只下载数据 JSON</button></div><div class="formgrid" style="margin-top:18px"><label>选择备份 JSON 文件<input type="file" id="restoreFile" accept=".json,application/json"></label></div><div class="actions"><button class="ghost" id="previewRestore">预览恢复内容</button></div><div id="restorePreview"></div><p class="muted">恢复会替换本浏览器的四类台账，请先下载当前数据备份。迁移包中可能有私人资料，请妥善保存；手机与电脑之间仍需手动传递备份。</p></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。日期列可用 Excel 日期单元格或 YYYY-MM-DD；导入前核对条数和前几行，确认后才写入本机数据。</p></div></section>
     <footer class="footer">行政工作台 · 事项、合同与用品管理。初始示例记录均为虚构。访问者在自己的浏览器中独立使用，不会看到他人的记录。</footer>
   </main>
 </div>
@@ -77,6 +78,50 @@
   const diff=s=>Math.ceil((new Date(s+'T12:00:00')-new Date(day()+'T12:00:00'))/86400000);
   const status=(due,days=0,done=false)=>done?['已完成','tag']:diff(due)<0?['已逾期','tag danger']:diff(due)===0?['今天到期','tag danger']:diff(due)<=days?['进入提醒窗口','tag warn']:['正常','tag'];
   const toast=s=>{let n=$('toast');n.textContent=s;n.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.style.display='none',3300)};
+  const notifyKey='admin-workbench-notify-v1',notifiedKey='admin-workbench-notified-v1';
+  const notificationSupported=()=>('Notification' in window)&&window.isSecureContext;
+  const dueItems=()=>[
+    ...db.tasks.filter(t=>!t.done&&t.due&&diff(t.due)<=0).map(t=>({kind:'待办',id:t.id,name:t.title})),
+    ...db.contracts.filter(c=>!c.done&&c.due&&diff(c.due)<=Number(c.days)).map(c=>({kind:'合同',id:c.id,name:c.name})),
+    ...db.guides.filter(g=>g.due&&Number.isFinite(diff(g.due))&&diff(g.due)<=Number(g.days)).map(g=>({kind:'流程',id:g.id,name:g.title}))
+  ];
+  function notificationStatus(){
+    let enabled=localStorage.getItem(notifyKey)==='1';
+    $('notifyBtn').textContent=enabled?'关闭浏览器通知':'开启浏览器通知';
+    $('notifyState').textContent=!notificationSupported()?'此浏览器不支持网页通知':Notification.permission==='denied'?'浏览器已禁止通知，请在地址栏设置中调整':enabled?'已开启：网页打开期间检查':'未开启';
+  }
+  function checkNotifications(){
+    if(!notificationSupported()||Notification.permission!=='granted'||localStorage.getItem(notifyKey)!=='1')return;
+    let items=dueItems(),today=day(),last={};try{last=JSON.parse(localStorage.getItem(notifiedKey))||{}}catch{}
+    let fresh=items.filter(x=>last[x.kind+':'+x.id]!==today);if(!fresh.length)return;
+    try{let notice=new Notification('行政工作台 · 到期提醒',{body:'有 '+fresh.length+' 项事项需要查看，请打开工作台处理。',tag:'admin-workbench-'+today});
+      notice.onclick=()=>{window.focus();page('home');notice.close()};
+      for(let x of fresh)last[x.kind+':'+x.id]=today;
+      localStorage.setItem(notifiedKey,JSON.stringify(Object.fromEntries(Object.entries(last).filter(([,v])=>v===today))));
+    }catch{toast('浏览器无法显示通知，请使用页面内提醒')}
+  }
+  $('notifyBtn').onclick=async()=>{
+    if(localStorage.getItem(notifyKey)==='1'){localStorage.removeItem(notifyKey);notificationStatus();toast('已关闭浏览器通知');return}
+    if(!notificationSupported())return toast('此浏览器不支持网页通知');
+    let permission=Notification.permission;
+    if(permission==='default')permission=await Notification.requestPermission();
+    if(permission!=='granted'){notificationStatus();return toast('未获得通知权限，可继续使用页面和日历提醒')}
+    localStorage.setItem(notifyKey,'1');notificationStatus();checkNotifications();
+  };
+  function calendarText(){
+    let events=[],today=day(),escape=s=>String(s??'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+    const fold=line=>{let result='',width=0;for(let ch of line){let size=new TextEncoder().encode(ch).length;if(width+size>75){result+='\r\n ';width=1}result+=ch;width+=size}return result};
+    const add=(kind,id,name,date,details)=>{if(!/^\d{4}-\d\d-\d\d$/.test(date)||date<today)return;
+      let stamp=date.replace(/-/g,'')+'T090000',uid=encodeURIComponent(kind+':'+id).replace(/%/g,'-')+'@admin-workbench.local';
+      events.push(['BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),'DTSTART:'+stamp,'DTEND:'+date.replace(/-/g,'')+'T093000','SUMMARY:'+escape('行政工作台｜'+kind+'｜'+name),'DESCRIPTION:'+escape(details),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:行政工作台到期事项','TRIGGER:PT0M','END:VALARM','END:VEVENT'].map(fold).join('\r\n'))
+    };
+    for(let t of db.tasks)if(!t.done&&t.due)add('待办',t.id,t.title,t.due,'截止：'+t.due+'；下一步：'+(t.next||'待明确'));
+    for(let c of db.contracts)if(!c.done&&c.due&&c.due>=today){let d=new Date(c.due+'T12:00:00');d.setDate(d.getDate()-Math.max(0,Number(c.days)||0));let start=d.toLocaleDateString('en-CA');add('合同',c.id,c.name,start<today?today:start,'到期：'+c.due+'；下一步：'+(c.next||'待明确'))}
+    for(let g of db.guides)if(g.due&&g.due>=today){let d=new Date(g.due+'T12:00:00');d.setDate(d.getDate()-Math.max(0,Number(g.days)||0));let start=d.toLocaleDateString('en-CA');add('流程',g.id,g.title,start<today?today:start,'到期：'+g.due)}
+    return {content:['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Admin Workbench//Reminder//ZH','CALSCALE:GREGORIAN',...events,'END:VCALENDAR'].join('\r\n')+'\r\n',count:events.length}
+  }
+  $('calendarBtn').onclick=()=>{let {content,count}=calendarText();if(!count)return toast('目前没有将来到期的事项');downloadBlob(new Blob([content],{type:'text/calendar;charset=utf-8'}),'行政工作台-到期日历-'+day()+'.ics');toast('已下载 '+count+' 项日历提醒，请导入设备日历')};
+  notificationStatus();document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();checkNotifications()}});window.addEventListener('focus',checkNotifications);setInterval(()=>{if(!document.hidden){render();checkNotifications()}},60000);
   function render(){
     const active=db.tasks.filter(t=>!t.done),alerts=db.contracts.filter(c=>!c.done&&diff(c.due)<=Number(c.days)),guideAlerts=db.guides.filter(g=>g.due&&Number.isFinite(diff(g.due))&&diff(g.due)<=Number(g.days));
     $('todayText').textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
@@ -92,6 +137,7 @@
     $('stockSummary').innerHTML=Object.keys(balances).length?Object.entries(balances).map(([n,q])=>'<div class="item"><b>'+safe(n)+'</b><span class="'+(q<0?'tag danger':'tag')+'">'+q+' 件</span></div>').join(''):'<div class="empty">还没有用品记录。</div>';
     $('stockHistory').innerHTML=db.stock.slice().reverse().slice(0,6).map(s=>'<div class="item"><div><b>'+safe(s.name)+' · '+(s.type==='in'?'入库':'领用')+' '+safe(s.qty)+'</b><p>'+safe(s.date)+' · '+safe(s.person)+' · '+safe(s.note||'')+'</p></div></div>').join('');
     renderGuides();
+    checkNotifications();
   }
   function page(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('pageTitle').textContent=({home:'今天，先处理什么？',inbox:'让交代都有下文',contracts:'每份合同都有节点',supplies:'每笔领用都有记录',guides:'每一步都有提示',data:'把台账带进带出'})[id];window.scrollTo({top:0,behavior:'smooth'})}
   document.addEventListener('click',e=>{let el=e.target.closest('[data-page],[data-goto],[data-task],[data-contract],[data-export]');if(!el)return;if(el.dataset.page||el.dataset.goto)page(el.dataset.page||el.dataset.goto);if(el.dataset.task){let t=db.tasks.find(x=>x.id===el.dataset.task);if(t){t.done=!t.done;persist();render()}}if(el.dataset.contract){let c=db.contracts.find(x=>x.id===el.dataset.contract);if(c){c.done=!c.done;persist();render()}}if(el.dataset.export)exportCSV(el.dataset.export)});
@@ -143,6 +189,59 @@
   function exportCSV(type){let rows=[cols[type].join(','),...db[type].map(row=>cols[type].map(k=>csvField(row[k])).join(','))];let blob=new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=({tasks:'行政待办',contracts:'合同节点',stock:'用品流水',guides:'流程提示'})[type]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   function parseCSV(text){text=text.replace(/^\ufeff/,'');let records=[],row=[],field='',quotes=false;for(let i=0;i<text.length;i++){let c=text[i];if(quotes){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quotes=false;else field+=c}else if(c==='"')quotes=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));records.push(row);row=[];field=''}else field+=c}if(field||row.length){row.push(field.replace(/\r$/,''));records.push(row)}return records.filter(r=>r.some(x=>x.trim()))}
   
+  // Read an ordinary OOXML workbook locally; no workbook data leaves this browser.
+  async function parseXLSX(file){
+    if(typeof DecompressionStream==='undefined')throw Error('此浏览器不支持本地解压 .xlsx，请使用新版浏览器或转存 CSV');
+    const bytes=new Uint8Array(await file.arrayBuffer()),view=new DataView(bytes.buffer),decoder=new TextDecoder();
+    const u16=i=>view.getUint16(i,true),u32=i=>view.getUint32(i,true);
+    let end=-1;for(let i=bytes.length-22;i>=Math.max(0,bytes.length-65557);i--)if(u32(i)===0x06054b50){end=i;break}
+    if(end<0||u16(end+8)>3000)throw Error('不是有效的 .xlsx 文件');
+    const files=new Map(),count=u16(end+10);let pos=u32(end+16);
+    for(let i=0;i<count;i++){
+      if(pos+46>bytes.length||u32(pos)!==0x02014b50)throw Error('工作簿 ZIP 目录损坏');
+      let method=u16(pos+10),size=u32(pos+20),nameLen=u16(pos+28),extra=u16(pos+30),comment=u16(pos+32);
+      let name=decoder.decode(bytes.subarray(pos+46,pos+46+nameLen));
+      files.set(name,{method,size,offset:u32(pos+42)});pos+=46+nameLen+extra+comment;
+    }
+    async function part(name){let e=files.get(name);if(!e)return null;
+      let p=e.offset;if(p+30>bytes.length||u32(p)!==0x04034b50||e.size>8e6)throw Error('工作表大小超出限制或文件损坏');
+      let start=p+30+u16(p+26)+u16(p+28),data=bytes.subarray(start,start+e.size);if(data.length!==e.size)throw Error('工作表内容不完整');
+      if(e.method===8){let reader=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(),chunks=[],total=0;
+        for(;;){let {done,value}=await reader.read();if(done)break;total+=value.length;if(total>20e6){await reader.cancel();throw Error('解压后工作表过大')}chunks.push(value)}
+        data=new Uint8Array(total);let at=0;for(let chunk of chunks){data.set(chunk,at);at+=chunk.length}}
+      else if(e.method!==0)throw Error('不支持的 Excel 压缩方式');
+      if(data.length>20e6)throw Error('解压后工作表过大');return decoder.decode(data)
+    }
+    function xml(source){let doc=new DOMParser().parseFromString(source||'','application/xml');if(doc.querySelector('parsererror'))throw Error('Excel XML 内容损坏');return doc}
+    const nodes=(root,name)=>Array.from(root.getElementsByTagName('*')).filter(x=>x.localName===name),child=(root,name)=>Array.from(root.children).find(x=>x.localName===name);
+    let workbook=xml(await part('xl/workbook.xml')),sheet=nodes(workbook,'sheet')[0];if(!sheet)throw Error('没有可读取的工作表');
+    let rid=Array.from(sheet.attributes).find(x=>x.localName==='id')?.value;
+    let rels=xml(await part('xl/_rels/workbook.xml.rels'));
+    let target=nodes(rels,'Relationship').find(x=>x.getAttribute('Id')===rid)?.getAttribute('Target');
+    if(!target||target.includes('://'))throw Error('找不到第一个工作表');
+    let path=target.startsWith('/')?target.slice(1):'xl/'+target;
+    path=path.split('/').reduce((a,x)=>{if(x==='..')a.pop();else if(x&&x!=='.')a.push(x);return a},[]).join('/');
+    let sheetText=await part(path);if(!sheetText)throw Error('第一个工作表不存在');
+    let stringsText=await part('xl/sharedStrings.xml'),strings=stringsText?nodes(xml(stringsText),'si').map(si=>nodes(si,'t').map(t=>t.textContent).join('')):[];
+    let stylesText=await part('xl/styles.xml'),dates=new Set();
+    if(stylesText){let styles=xml(stylesText),custom=new Set(nodes(styles,'numFmt').filter(x=>/[ymd年月日]/i.test((x.getAttribute('formatCode')||'').replace(/"[^"]*"/g,''))).map(x=>x.getAttribute('numFmtId')));
+      let cellXfs=nodes(styles,'cellXfs')[0];if(cellXfs)Array.from(cellXfs.children).forEach((xf,i)=>{let id=Number(xf.getAttribute('numFmtId'));if((id>=14&&id<=22)||custom.has(String(id)))dates.add(i)})}
+    let date1904=nodes(workbook,'workbookPr')[0]?.getAttribute('date1904')==='1';
+    const excelDate=n=>{let d=new Date(Date.UTC(date1904?1904:1899,date1904?0:11,date1904?1:30)+Math.floor(Number(n))*86400000);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''};
+    let rows=[];for(let row of nodes(xml(sheetText),'row')){
+      let record=[],next=0;for(let cell of Array.from(row.children).filter(x=>x.localName==='c')){
+        let ref=cell.getAttribute('r')||'',letters=ref.match(/^[A-Z]+/i)?.[0]||'';
+        let col=letters?[...letters.toUpperCase()].reduce((v,c)=>v*26+c.charCodeAt(0)-64,0)-1:next;
+        if(col>100||col<0)throw Error('列数超出支持范围');next=col+1;
+        let raw=child(cell,'v')?.textContent||'',type=cell.getAttribute('t');
+        let value=type==='s'?strings[Number(raw)]??'':type==='inlineStr'?nodes(cell,'t').map(t=>t.textContent).join(''):raw;
+        if(dates.has(Number(cell.getAttribute('s')))&&!type&&raw)value=excelDate(raw);
+        record[col]=value;
+      }if(record.some(v=>String(v??'').trim()))rows.push(record)
+      if(rows.length>100001)throw Error('超过十万行，请拆分文件')
+    }
+    return rows;
+  }
    const backupObject=()=>({format:'admin-workbench-backup',version:1,exportedAt:new Date().toISOString(),data:db});
    const backupText=()=>JSON.stringify(backupObject(),null,2);
    function downloadBlob(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
@@ -159,7 +258,7 @@
    }
    $('downloadPackage').onclick=async()=>{let button=$('downloadPackage');button.disabled=true;
      try{let html;try{let r=await fetch(new URL('index.html',location.href),{cache:'no-store'});if(!r.ok)throw Error('fetch');html=await r.text()}catch{html='<!doctype html>\n'+document.documentElement.outerHTML}
-       let instructions='行政工作台完整迁移包\r\n\r\n1. 在新电脑打开 https://ranran1001.github.io/admin-workbench/ 。\r\n2. 点击“导入与导出”，找到“换电脑 · 完整迁移”，选择压缩包内的 backup.json。\r\n3. 预览四类台账条数后确认恢复。\r\n4. index.html 是网页程序副本；qr.svg 是二维码。本地直接打开 HTML 时浏览器可能限制数据保存，建议从上述网址恢复使用。\r\n5. 新旧设备不会自动同步；之后每次转移需重新下载最新备份。不要把 backup.json 上传到公开仓库。\r\n';
+       let instructions='行政工作台完整迁移包\r\n\r\n1. 在新电脑打开 https://ranran1001.github.io/admin-workbench/ 。\r\n2. 点击“导入与导出”，找到“换电脑 · 完整迁移”，选择压缩包内的 backup.json。\r\n3. 预览四类台账条数后确认恢复。\r\n4. index.html 是网页程序副本；qr.svg 是二维码。本地直接打开 HTML 时浏览器可能限制数据保存，建议从上述网址恢复使用。\r\n5. 新旧设备不会自动同步；之后每次转移需重新下载最新备份。不要把 backup.json 上传到公开仓库。\r\n6. 到期日历需另行下载并导入设备日历；浏览器通知权限不能随数据迁移。\r\n';
        let files=[['index.html',html],['backup.json',backupText()],['README.txt',instructions]];
        try{let q=await fetch(new URL('qr.svg',location.href),{cache:'no-store'});if(q.ok)files.push(['qr.svg',await q.text()])}catch{}
        downloadBlob(zipFiles(files),'行政工作台-完整迁移包-'+day()+'.zip');toast('完整迁移包已下载')
@@ -180,11 +279,37 @@
      db=pendingRestore.data;pendingRestore=null;$('restorePreview').replaceChildren();$('restoreFile').value='';render();toast('四类台账已恢复')
    };
 let pending=null;
-  $('importBtn').onclick=async()=>{let f=$('importFile').files[0],type=$('importType').value;if(!f)return toast('先选择一个 CSV 文件');if(f.size>2e6)return toast('请选择小于 2 MB 的 CSV 文件');let rows=parseCSV(await f.text()),header=rows.shift()||[],missing=cols[type].filter(c=>!header.includes(c));if(missing.length)return toast('列名不匹配，缺少：'+missing.join('、'));let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,r[header.indexOf(c)]]))).filter(x=>x.id);let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});pending={type,items:newItems};$('importPreview').innerHTML='<div class="note">文件共 '+items.length+' 条，其中 '+newItems.length+' 条为新编号，将追加到“'+({tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示'})[type]+'”。<br>预览：'+newItems.slice(0,3).map(x=>safe(x.id)+' · '+safe(x.title||x.name)).join('；')+'</div><button class="primary" id="confirmImport">确认导入 '+newItems.length+' 条</button>';};
-  $('importPreview').addEventListener('click',e=>{if(e.target.id!=='confirmImport'||!pending)return;for(let x of pending.items){if(pending.type==='tasks'||pending.type==='contracts')x.done=x.done===true||x.done==='true';if(pending.type==='stock')x.qty=Number(x.qty)||0;if(pending.type==='contracts'||pending.type==='guides')x.days=Number(x.days)||0}db[pending.type].push(...pending.items);persist();render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').innerHTML='';$('importFile').value=''});
+  $('importFile').onchange=$('importType').onchange=()=>{pending=null;$('importPreview').replaceChildren()};
+  const validDate=s=>!s||(/^\d{4}-\d{2}-\d{2}$/.test(s)&&(()=>{let d=new Date(s+'T12:00:00');return !Number.isNaN(d.getTime())&&d.getFullYear()===Number(s.slice(0,4))&&d.getMonth()+1===Number(s.slice(5,7))&&d.getDate()===Number(s.slice(8,10))})());
+  $('importBtn').onclick=async()=>{
+    pending=null;$('importPreview').replaceChildren();
+    let f=$('importFile').files[0],type=$('importType').value;if(!f)return toast('先选择 CSV 或 .xlsx 文件');
+    let isXlsx=/\.xlsx$/i.test(f.name),isCSV=/\.csv$/i.test(f.name);if(!isXlsx&&!isCSV)return toast('请选择 .csv 或 .xlsx 文件');
+    if(f.size>(isXlsx?8e6:2e6))return toast('文件过大，请拆分后导入');
+    try{
+      let rows=isXlsx?await parseXLSX(f):parseCSV(await f.text()),header=(rows.shift()||[]).map(x=>String(x??'').trim()),missing=cols[type].filter(c=>!header.includes(c));
+      if(missing.length)throw Error('列名不匹配，缺少：'+missing.join('、')+'；请先导出同类 CSV 查看列名');
+      let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,String(r[header.indexOf(c)]??'').trim()]))).filter(x=>x.id);
+      let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});
+      for(let [i,x] of newItems.entries()){
+        for(let field of ['due','date'])if(field in x&&(!validDate(x[field])||(field==='date'&&!x[field])))throw Error('第 '+(i+2)+' 条新记录的 '+field+' 日期无效，请用 YYYY-MM-DD');
+        if(type==='tasks'||type==='contracts'){if(!x.due)throw Error('待办和合同必须填写 due 日期');x.done=/^(true|1|是|已完成)$/i.test(x.done)}
+        if(type==='stock'){x.qty=Number(x.qty);if(!Number.isInteger(x.qty)||x.qty<=0||!['in','out'].includes(x.type))throw Error('用品数量须为正整数，type 须为 in 或 out')}
+        if(type==='contracts'||type==='guides'){x.days=Number(x.days||0);if(!Number.isInteger(x.days)||x.days<0)throw Error('提醒天数 days 须为非负整数')}
+      }
+      pending={type,items:newItems,file:f,name:f.name};
+      $('importPreview').innerHTML='<div class="note">文件共 '+items.length+' 条；重复编号 '+(items.length-newItems.length)+' 条跳过；将追加 '+newItems.length+' 条到“'+({tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示'})[type]+'”。<br>预览：'+(newItems.slice(0,3).map(x=>safe(x.id)+' · '+safe(x.title||x.name)).join('；')||'没有新编号')+'</div>'+(newItems.length?'<button class="primary" id="confirmImport">确认导入 '+newItems.length+' 条</button>':'');
+    }catch(err){toast(err.message||'无法读取文件，请检查文件格式')}
+  };
+  $('importPreview').addEventListener('click',e=>{if(e.target.id!=='confirmImport'||!pending)return;
+    if($('importFile').files[0]!==pending.file||$('importType').value!==pending.type)return toast('文件或台账已改变，请重新预览');
+    let data={...db,[pending.type]:[...db[pending.type],...pending.items]};try{localStorage.setItem(key,JSON.stringify(data))}catch{return toast('浏览器存储空间不足，导入未完成')}
+    db=data;render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').replaceChildren();$('importFile').value='';
+  });
   $('resetBtn').onclick=()=>{if(!confirm('恢复示例数据将清除当前浏览器里的所有工作记录，确定继续？'))return;db=sample();persist();render();toast('已恢复示例数据')};
   render();
 })();
 </script>
 </body>
 </html>
+
