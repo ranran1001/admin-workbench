@@ -16,10 +16,11 @@
     @media(max-width:920px){.shell{grid-template-columns:1fr}.side{height:auto;position:sticky;z-index:10;padding:12px 16px}.brand{font-size:15px;display:inline;margin:0 16px 0 0}.brand-sub,.side-foot{display:none}.nav{display:flex;overflow:auto;margin-top:10px}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}main{padding:23px 16px 55px}.hero{grid-template-columns:1fr}.hero-stat{display:none}.cols{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:500px){.top{display:block}.top .pill{margin-top:10px}.hero{padding:23px}.grid{gap:9px}.card{padding:14px}.card b{font-size:25px}.panel{padding:17px}.inputrow{flex-wrap:wrap}.inputrow input{min-width:100%}.formgrid{grid-template-columns:1fr}.span2{grid-column:auto}}
     /* Spring sage: lighter, warmer greens with readable dark text. */
     :root{--ink:#30483d;--muted:#62766a;--teal:#416f5c;--line:#d7e6d7;--paper:#f4f8f2;--amber:#d2a76c;--red:#a64d46}
-    .side{display:flex;flex-direction:column;overflow-y:auto;background:linear-gradient(165deg,#547e69,#3f6b5e);color:#fff}
-    .brand-sub{color:#e2efe4;margin-bottom:24px}.nav{flex:none}.nav button{color:#fff;text-wrap:wrap}
-    .nav button.active,.nav button:hover{background:#395f51;color:#fff}.side-foot{position:static;margin:22px 13px 0;padding-top:17px;border-top:1px solid #d4e6d777;color:#e8f4e9}
-    .hero{background:linear-gradient(115deg,#5a886b,#3c7464)}.hero p,.hero-stat span{color:#f3fff3}.eyebrow{color:#497b61}
+    .side{display:flex;flex-direction:column;overflow-y:auto;background:linear-gradient(165deg,#e0eee0,#c5dfd3);color:#294d3c}
+    .brand-sub{color:#557b69;margin-bottom:24px}.nav{flex:none}.nav button{color:#294d3c;text-wrap:wrap}
+    .nav button.active,.nav button:hover{background:#a6cdb2;color:#244a38}.side-foot{position:static;margin:22px 13px 0;padding-top:17px;border-top:1px solid #8db59d;color:#496d5b}
+    .hero{background:linear-gradient(115deg,#dcefdc,#b9d9c9);color:#2e5340}.hero p,.hero-stat span,.hero strong{color:#315a46}.hero .eyebrow{color:#507e65}.eyebrow{color:#497b61}
+    .hero:after{border-color:#6caa823d;box-shadow:0 0 0 42px #80b49317,0 0 0 88px #80b49312}.hero-stat{background:#ffffff70;border-color:#9bc7ab}.hero-stat b{color:#355f49}
     .pill{background:#e6f3e8;color:#416d53;border-color:#cce4d0}.pill::before{background:#6ba77c}
     .soft{background:#e5f1e5;color:#315c47;border-color:#cee3ce}.soft:hover{background:#d6e9d8}.primary:hover{background:#315d4b}
     .note{background:#edf6ed;color:#536d5d;border-left-color:#81ab87}.banner{background:#f8f4e7;border-color:#e8dfc3;color:#695d40}
@@ -36,14 +37,14 @@
     <header class="top"><div><span class="eyebrow">PERSONAL ADMIN WORKBENCH</span><h1 id="pageTitle">今天，先处理什么？</h1><div class="muted" id="todayText"></div></div><div><div class="pill">行政事务管理</div><div class="muted" id="globalSyncState" style="margin-top:8px;text-align:right">仅本机保存</div></div></header>
     <div class="banner">数据会先保存在当前浏览器；配置云端并登录后才能多设备同步。请留意同步页面的状态，显示“已同步”才表示云端保存成功。到期浏览器通知仍需打开网页。公开网页请勿录入未经许可的敏感资料。</div>
     <section id="home" class="section active">
-      <div class="hero"><div><span class="eyebrow" style="color:#9ddad0">ONE INBOX · CLEAR NEXT STEP</span><h2>接住琐事，追到结果。</h2><p>一句话收进临时交代；合同按日期进入提醒窗口；用品从购入到领用有据可查。<strong>所有事项都能回到今天的工作队列。</strong></p><button class="soft" data-goto="inbox">立即记一件事 →</button></div><div class="hero-stat"><b id="heroCount">0</b><span>件事项等待跟进</span></div></div>
+      <div class="hero"><div><span class="eyebrow">ONE INBOX · CLEAR NEXT STEP</span><h2>接住琐事，追到结果。</h2><p>一句话收进临时交代；合同按日期进入提醒窗口；用品从购入到领用有据可查。<strong>所有事项都能回到今天的工作队列。</strong></p><button class="soft" data-goto="inbox">立即记一件事 →</button></div><div class="hero-stat"><b id="heroCount">0</b><span>件事项等待跟进</span></div></div>
       <div class="grid"><div class="card"><small>待处理事项</small><b id="statOpen">0</b><em>明确下一步</em></div><div class="card"><small>今天／已逾期</small><b id="statUrgent">0</b><em>优先处理</em></div><div class="card"><small>合同提醒</small><b id="statContract">0</b><em>进入提前提醒窗口</em></div><div class="card"><small>用品种类</small><b id="statStock">0</b><em>采购与领用留痕</em></div></div>
       <div class="cols"><div class="panel"><div class="head"><h3>我的工作队列</h3><button class="ghost tiny" data-goto="inbox">全部事项 →</button></div><div id="homeTasks"></div></div><div class="panel"><div class="head"><h3>近期节点</h3><button class="ghost tiny" data-goto="contracts">合同台账 →</button></div><div id="homeAlerts"></div></div></div>
       <div class="panel"><h3>到期通知</h3><p class="muted">开启后，网页打开期间每日通知一次进入提醒期的待办、合同与流程；关闭网页后不会推送。下载日历文件并导入设备日历，可以交由日历应用在网页关闭时提醒。日历文件包含事项名称，请妥善保存。</p><div class="actions"><button class="soft" id="notifyBtn">开启浏览器通知</button><button class="ghost" id="calendarBtn">下载到期日历 .ics</button><span class="muted" id="notifyState"></span></div></div>
       <div class="panel"><div class="head"><h3>从记录到完成</h3><small>按步骤使用</small></div><div class="muted">输入交代 → 核对解析出的日期 → 放进待办 → 到期在工作队列提示 → 完成后留痕。手机可使用系统键盘自带的语音输入。</div></div>
     </section>
     <section id="inbox" class="section">
-      <div class="cols"><div><div class="panel"><h2>先记下来，再整理</h2><p class="muted">试着输入：“领导让我明天联系供应商，确认打印纸报价”。系统会先给出可修改的草稿。</p><textarea id="capture" aria-label="随手记录" placeholder="例如：周五前联系供应商，确认会议物料报价"></textarea><div class="actions"><button class="primary" id="parseBtn">整理成待办</button></div></div><div class="panel" id="draftPanel" hidden><div class="head"><h3>请核对，再保存</h3><span class="tag warn">等待确认</span></div><div class="formgrid"><label class="span2">事项<input id="draftTitle"></label><label>截止日期<input type="date" id="draftDue"></label><label>负责人<input id="draftOwner" placeholder="例如：我"></label><label class="span2">下一步动作<input id="draftNext" placeholder="例如：联系供应商确认报价"></label></div><div class="actions"><button class="primary" id="saveDraft">加入工作队列</button><button class="ghost" id="cancelDraft">取消</button></div></div></div><div class="panel"><div class="head"><h3>全部待办</h3><span class="tag" id="taskCount">0 条</span></div><div id="allTasks"></div></div></div>
+      <div class="cols"><div><div class="panel"><h2>先记下来，再整理</h2><p class="muted">试着输入：“领导让我明天联系供应商，确认打印纸报价”。输入会暂存在本机；要让电脑也看到，请核对日期并点「加入工作队列」，等待「已同步」。</p><textarea id="capture" aria-label="随手记录" placeholder="例如：周五前联系供应商，确认会议物料报价"></textarea><div class="muted" id="captureStatus">尚未输入；本机草稿不会自动成为待办</div><div class="actions"><button class="primary" id="parseBtn">整理成待办</button></div></div><div class="panel" id="draftPanel" hidden><div class="head"><h3>请核对，再保存</h3><span class="tag warn">等待确认</span></div><div class="formgrid"><label class="span2">事项<input id="draftTitle"></label><label>截止日期<input type="date" id="draftDue"></label><label>负责人<input id="draftOwner" placeholder="例如：我"></label><label class="span2">下一步动作<input id="draftNext" placeholder="例如：联系供应商确认报价"></label></div><div class="actions"><button class="primary" id="saveDraft">加入工作队列</button><button class="ghost" id="cancelDraft">取消</button></div></div></div><div class="panel"><div class="head"><h3>全部待办</h3><span class="tag" id="taskCount">0 条</span></div><div id="allTasks"></div></div></div>
     </section>
     <section id="contracts" class="section"><div class="panel"><h2>合同节点</h2><p class="muted">记录合同到期日与提前提醒天数。处理状态、下一步和责任人一起留在台账里。</p><div class="formgrid"><label>合同编号<input id="cId" placeholder="HT-003"></label><label>合同名称<input id="cName" placeholder="如：办公设备维护合同"></label><label>到期日<input id="cDue" type="date"></label><label>提前提醒天数<input id="cDays" type="number" min="0" value="30"></label><label>责任人<input id="cOwner" placeholder="如：行政"></label><label>下一步动作<input id="cNext" placeholder="如：联系对方确认续签"></label></div><div class="actions"><button class="primary" id="addContract">新增合同</button></div></div><div class="panel"><div class="head"><h3>合同台账</h3><span class="muted">按到期日排列</span></div><div class="tablewrap"><table><thead><tr><th>合同编号／名称</th><th>到期日</th><th>提前提醒</th><th>节点状态</th><th>责任人／下一步</th><th>操作</th></tr></thead><tbody id="contractRows"></tbody></table></div></div></section>
     <section id="supplies" class="section"><div class="panel"><h2>用品流转</h2><p class="muted">采购入库和员工领用分别登记，库存由流水自动计算。</p><div class="formgrid"><label>用品名称<input id="sName" placeholder="如：A4 打印纸"></label><label>类型<select id="sType"><option value="in">采购入库</option><option value="out">领用出库</option></select></label><label>数量<input id="sQty" type="number" min="1" step="1" placeholder="数量"></label><label>购买方／领取人<input id="sPerson" placeholder="如：采购员／领取人"></label><label>发生日期<input id="sDate" type="date"></label><label>备注<input id="sNote" placeholder="如：订单号、领用部门"></label></div><div class="actions"><button class="primary" id="addStock">登记这笔流转</button></div></div><div class="cols"><div class="panel"><div class="head"><h3>当前库存</h3><span class="muted">按名称汇总</span></div><div id="stockSummary"></div></div><div class="panel"><div class="head"><h3>最近流水</h3><span class="muted">留痕记录</span></div><div id="stockHistory"></div></div></div></section>
@@ -81,6 +82,7 @@
           <label>主题<input id="wTopic" placeholder="例如：会议室使用安排"></label>
           <label>收文对象／受众<input id="wAudience" placeholder="例如：各部门"></label>
           <label>参考例文<select id="wSample"><option value="">不使用例文</option></select></label>
+          <label>DeepSeek 模式<select id="wThinking"><option value="enabled">深度思考（默认）</option><option value="disabled">快速起草</option></select></label>
           <label class="span2">已确认的事实与必须写入的要点<textarea id="wPoints" placeholder="每行一个要点：时间、地点、人员、办理事项、截止日期等"></textarea></label>
           <label class="span2">语气、格式或其他要求<textarea id="wRequirements" placeholder="例如：正式简洁、分条、保留落款位置"></textarea></label>
         </div>
@@ -105,7 +107,13 @@
     <div class="note" id="syncStatus">仅本机保存 · 尚未设置云端</div>
     <div id="syncFirstRun" hidden><h3>第一次连接：先选择要保留的数据</h3><p class="muted" id="syncCounts"></p><div class="actions"><button class="soft" id="syncUpload">以本机数据建立云端副本</button><button class="ghost" id="syncDownload">下载云端数据到本机</button></div><p class="muted">选择前先下载完整备份。两种操作都可能覆盖另一端的数据；首次连接不自动合并。</p></div>
     <div id="syncConflict" hidden><h3>检测到两端修改</h3><p class="muted">已暂停上传，未覆盖本机或云端。先分别备份，再决定采用哪一份。</p><div class="actions"><button class="ghost" id="syncUseCloud">备份后采用云端</button><button class="soft" id="syncUseLocal">备份后采用本机</button></div></div>
-    </div></section>
+    </div><div class="panel"><h3>第一次使用，照着做</h3><ol class="muted" style="line-height:2.1;padding-left:20px">
+      <li>先到「导入与导出」下载完整备份。</li>
+      <li>打开 <a href="https://supabase.com/" target="_blank" rel="noopener">Supabase 官网</a>注册，创建一个项目。暂时不需要买服务器或域名。</li>
+      <li>照着<a href="https://github.com/ranran1001/admin-workbench/blob/main/cloud/%E4%BA%91%E7%AB%AF%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E.md" target="_blank" rel="noopener">云端配置说明</a>运行数据库设置，并设置登录跳转地址。</li>
+      <li>把项目网址和<strong>公开密钥</strong>填到上方，输入邮箱并点邮件登录链接。</li>
+      <li>第一台设备选「上传本机」，等出现「已同步」；第二台设备同邮箱登录，选「下载云端」。</li>
+    </ol><p class="muted">手机写完后，请等状态显示「已同步」再关闭网页；若显示「本机已保存／离线待同步」，电脑此时可能还看不到。普通浏览器关闭网页后，本机记录通常仍在；清除网站数据或使用无痕模式会使本机记录消失。</p></div></section>
     <footer class="footer">行政工作台 · 事项、合同与用品及公文草稿管理。初始示例记录均为虚构。云端连接需由使用者单独配置。</footer>
   </main>
 </div>
@@ -123,6 +131,11 @@
   const diff=s=>Math.ceil((new Date(s+'T12:00:00')-new Date(day()+'T12:00:00'))/86400000);
   const status=(due,days=0,done=false)=>done?['已完成','tag']:diff(due)<0?['已逾期','tag danger']:diff(due)===0?['今天到期','tag danger']:diff(due)<=days?['进入提醒窗口','tag warn']:['正常','tag'];
   const toast=s=>{let n=$('toast');n.textContent=s;n.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.style.display='none',3300)};
+  const captureDraftKey='admin-workbench-capture-draft-v1';
+  try{$('capture').value=localStorage.getItem(captureDraftKey)||''}catch{}
+  function captureState(){let has=!!$('capture').value.trim();$('captureStatus').textContent=has?'文字已暂存到本机 · 核对并加入工作队列后才能多设备同步':'尚未输入；本机草稿不会自动成为待办'}
+  $('capture').addEventListener('input',()=>{try{localStorage.setItem(captureDraftKey,$('capture').value);captureState()}catch{$('captureStatus').textContent='本机草稿暂存失败，请尽快加入工作队列'}});
+  captureState();
   const notifyKey='admin-workbench-notify-v1',notifiedKey='admin-workbench-notified-v1';
   const notificationSupported=()=>('Notification' in window)&&window.isSecureContext;
   const dueItems=()=>[
@@ -227,7 +240,7 @@
   });
   const nextWeekday=(n)=>{let d=new Date(),offset=(n-d.getDay()+7)%7;return day(offset)};
   $('parseBtn').onclick=()=>{let s=$('capture').value.trim();if(!s)return toast('先写下一句话');let due=day(1);if(/今天/.test(s))due=day();else if(/后天/.test(s))due=day(2);else if(/明天/.test(s))due=day(1);else {let wd=s.match(/(?:下)?周([一二三四五六日天])/);if(wd){let m={'日':0,'天':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6};let n=m[wd[1]],delta=(n-new Date().getDay()+7)%7+(wd[0].startsWith('下')?7:0);due=day(delta)}let explicit=s.match(/(\d{1,2})月(\d{1,2})[日号]?/);if(explicit){let year=new Date().getFullYear(),candidate=new Date(year,Number(explicit[1])-1,Number(explicit[2]));if(candidate.getMonth()===Number(explicit[1])-1&&candidate.getDate()===Number(explicit[2])){if(candidate<new Date(day()))year++;due=[year,String(explicit[1]).padStart(2,'0'),String(explicit[2]).padStart(2,'0')].join('-')}}} $('draftTitle').value=s.replace(/^(领导让我|让我|记一下|提醒我)/,'').trim();$('draftDue').value=due;$('draftOwner').value='我';$('draftNext').value='确认需求并推进';$('draftPanel').hidden=false;toast('已整理成草稿，请核对日期与事项')};
-  $('saveDraft').onclick=()=>{let title=$('draftTitle').value.trim(),due=$('draftDue').value;if(!title||!due)return toast('请补全事项和截止日期');db.tasks.push({id:'T-'+Date.now(),title,due,owner:$('draftOwner').value.trim(),next:$('draftNext').value.trim(),done:false});persist();render();$('draftPanel').hidden=true;$('capture').value='';toast('已加入工作队列')};$('cancelDraft').onclick=()=>$('draftPanel').hidden=true;
+  $('saveDraft').onclick=()=>{let title=$('draftTitle').value.trim(),due=$('draftDue').value;if(!title||!due)return toast('请补全事项和截止日期');db.tasks.push({id:'T-'+Date.now(),title,due,owner:$('draftOwner').value.trim(),next:$('draftNext').value.trim(),done:false});persist();render();$('draftPanel').hidden=true;$('capture').value='';localStorage.removeItem(captureDraftKey);captureState();toast('已加入工作队列')};$('cancelDraft').onclick=()=>$('draftPanel').hidden=true;
   $('addContract').onclick=()=>{let id=$('cId').value.trim(),name=$('cName').value.trim(),due=$('cDue').value;if(!id||!name||!due)return toast('请填写合同编号、名称和到期日');if(db.contracts.some(c=>c.id===id))return toast('合同编号已存在');db.contracts.push({id,name,due,days:Math.max(0,Number($('cDays').value)||0),owner:$('cOwner').value.trim(),next:$('cNext').value.trim(),done:false});persist();render();['cId','cName','cDue','cOwner','cNext'].forEach(i=>$(i).value='');toast('合同已加入节点台账')};
   $('sDate').value=day();$('addStock').onclick=()=>{let name=$('sName').value.trim(),qty=Number($('sQty').value),type=$('sType').value;if(!name||!Number.isInteger(qty)||qty<=0||!$('sDate').value)return toast('请填写用品名称、正整数数量和日期');let bal=db.stock.filter(s=>s.name===name).reduce((n,s)=>n+(s.type==='in'?Number(s.qty):-Number(s.qty)),0);if(type==='out'&&qty>bal)return toast('领用数量不能超过当前库存 '+bal);db.stock.push({id:'S-'+Date.now(),name,type,qty,person:$('sPerson').value.trim()||'未记录',date:$('sDate').value,note:$('sNote').value.trim()});persist();render();['sName','sQty','sPerson','sNote'].forEach(i=>$(i).value='');toast('流水已登记')};
   let editingSample=null;
@@ -250,7 +263,7 @@
     $('wPrompt').value=prompt;
     if(!cloudClient||!cloudUser)return toast('请先在「多设备同步」配置并登录云端');
     let button=$('wGenerate');button.disabled=true;$('wConnectState').textContent='正在起草…';
-    try{let {data,error}=await cloudClient.functions.invoke('draft-document',{body:{prompt}});
+    try{let {data,error}=await cloudClient.functions.invoke('draft-document',{body:{prompt,thinking:$('wThinking').value}});
       if(error)throw error;if(!data?.text)throw Error(data?.error||'没有收到草稿');
       $('wDraft').value=data.text;$('wConnectState').textContent='草稿已返回，请人工核对';toast('草稿已生成')
     }catch(e){$('wConnectState').textContent='调用失败';toast('DeepSeek 调用失败：'+(e.message||'检查云端函数和密钥'))}
@@ -405,7 +418,7 @@ let pending=null;
   function markLocalChange(){
     if(!syncReady)return;
     let linked=cloudReady||!!localStorage.getItem(cloudSetting('linked'));
-    if(linked){cloudDirty=true;localStorage.setItem(cloudSetting('dirty'),'1');syncState(navigator.onLine?'本机已保存 · 等待云端确认':'本机已保存 · 离线待同步');clearTimeout(cloudTimer);cloudTimer=setTimeout(syncPush,700)}
+    if(linked){cloudDirty=true;localStorage.setItem(cloudSetting('dirty'),'1');syncState(navigator.onLine?'本机已保存 · 等待云端确认':'本机已保存 · 离线待同步');clearTimeout(cloudTimer);cloudTimer=setTimeout(syncPush,0)}
     else syncState('已保存到本机 · 云端尚未连接')
   }
   const validCloudData=data=>data&&['tasks','contracts','stock','guides','writingSamples'].every(k=>Array.isArray(data[k]));
