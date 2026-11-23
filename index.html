@@ -90,7 +90,7 @@
         <label class="muted" for="wPrompt">发送给模型的内容，可核对并修改</label><textarea id="wPrompt" style="min-height:185px" placeholder="点击“整理起草要求”生成"></textarea>
         <div class="note">参考例文只在你主动点击「用 DeepSeek 起草」后随提示词发送。不要发送未经许可的真实员工、合同或公司敏感资料。</div>
       </div><div>
-        <div class="panel"><h3>连接 DeepSeek</h3><p class="muted">先到「导入与导出」连接你的云端账号，并在云端部署公文起草函数。DeepSeek API 密钥只放在云端密钥设置里，不输入公开网页，也不进入备份。</p><span class="tag" id="wConnectState">等待云端配置</span></div>
+        <div class="panel"><h3>连接 DeepSeek</h3><p class="muted">先到「多设备同步」登录云端账号，并在 Supabase 部署名为 draft-document 的公文函数。DeepSeek API 密钥只放在云端密钥设置里。</p><span class="tag" id="wConnectState">等待云端配置</span><p class="muted" id="wErrorDetails" role="status" aria-live="polite"></p></div>
         <div class="panel"><h3>起草结果</h3><textarea id="wDraft" style="min-height:240px" placeholder="DeepSeek 生成的草稿会出现在这里，你可以继续修改。"></textarea><div class="actions"><button class="ghost" id="wCopy">复制草稿</button><button class="soft" id="wSaveDraft">把草稿存入例文库</button></div></div>
       </div></div>
       <div class="cols"><div class="panel"><h3>保存自己的例文</h3><p class="muted">例文存在当前浏览器，完整迁移包和数据 JSON 会一起备份；尚未接入多设备同步。</p><div class="formgrid">
@@ -263,11 +263,27 @@
     let prompt=$('wPrompt').value.trim()||buildWritingPrompt();if(!prompt)return;
     $('wPrompt').value=prompt;
     if(!cloudClient||!cloudUser)return toast('请先在「多设备同步」配置并登录云端');
-    let button=$('wGenerate');button.disabled=true;$('wConnectState').textContent='正在起草…';
+    let button=$('wGenerate');button.disabled=true;$('wConnectState').textContent='正在起草…';$('wErrorDetails').textContent='';
     try{let {data,error}=await cloudClient.functions.invoke('draft-document',{body:{prompt,thinking:$('wThinking').value}});
       if(error)throw error;if(!data?.text)throw Error(data?.error||'没有收到草稿');
       $('wDraft').value=data.text;$('wConnectState').textContent='草稿已返回，请人工核对';toast('草稿已生成')
-    }catch(e){$('wConnectState').textContent='调用失败';toast('DeepSeek 调用失败：'+(e.message||'检查云端函数和密钥'))}
+    }catch(e){
+      let response=e.context,code='',status=response?.status||'',detail='';
+      if(response?.clone){try{let body=await response.clone().json();code=String(body?.error||'').slice(0,90)}catch{}}
+      const hints={
+        server_not_configured:'Supabase → Edge Functions → Secrets：检查 DEEPSEEK_API_KEY 和 ALLOWED_EMAIL。',
+        account_not_allowed:'ALLOWED_EMAIL 与当前登录邮箱不一致。',
+        login_expired:'登录已过期，到「多设备同步」重新用邮箱登录。',
+        origin_denied:'函数中的网页来源地址需要与当前网址一致。',
+        thinking_mode_invalid:'云端函数还是旧版，请重新部署仓库里的最新版 draft-document.ts。',
+        prompt_length_invalid:'起草要求长度不合适，请缩短后重试。',
+        deepseek_network_error:'云端无法连接 DeepSeek，请查看函数运行日志。',
+        deepseek_empty_response:'DeepSeek 未返回正文，请查看函数运行日志。'
+      };
+      detail=hints[code]||(/^deepseek_request_failed_/.test(code)?'DeepSeek 接口返回 '+code.split('_').pop()+'；检查 API Key、余额与函数日志。':status===404?'找不到 draft-document 函数，请在 Supabase 的 Edge Functions 中部署。':status===401?'函数入口拒绝登录凭证；检查邮箱登录状态及 Verify JWT 设置。':status===403?'调用被拒绝；检查函数中的 ALLOWED_EMAIL 与网页来源。':e.message||'请查看 Supabase → Edge Functions → Logs');
+      $('wConnectState').textContent='调用失败'+(status?' · '+status:'');$('wErrorDetails').textContent=(code?code+'：':'')+detail;
+      toast('调用失败：请看「连接 DeepSeek」卡片里的具体原因')
+    }
     finally{button.disabled=false}
   };
   $('wCopy').onclick=async()=>{let body=$('wDraft').value.trim();if(!body)return toast('还没有可复制的草稿');try{await navigator.clipboard.writeText(body);toast('草稿已复制')}catch{toast('无法自动复制，请选中草稿手动复制')}};
@@ -557,4 +573,3 @@ let pending=null;
 </script>
 </body>
 </html>
-
