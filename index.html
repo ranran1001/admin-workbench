@@ -100,8 +100,8 @@
       <div class="panel"><div class="head"><h3>例文库</h3><span class="tag" id="wSampleCount">0 篇</span></div><div id="wSampleList"></div></div></div>
     </section>
     <section id="sync" class="section"><div class="panel"><h2>多设备同步</h2><p class="muted">先在 Supabase 创建自己的项目、数据库与公文函数，再在这里填写项目网址和公开密钥。这里不填写数据库私钥或 DeepSeek API 密钥。详细步骤见仓库的《云端配置说明》。</p><div class="formgrid">
-      <label>项目网址<input id="syncUrl" type="url" placeholder="https://你的项目.supabase.co"></label>
-      <label>公开密钥<input id="syncKey" placeholder="sb_publishable_... 或 anon key"></label>
+      <label>项目网址<input id="syncUrl" type="url" placeholder="https://你的项目.supabase.co"><span class="muted">复制 Project URL；若粘贴了 /rest/v1，也会自动去掉。</span></label>
+      <label>公开密钥<input id="syncKey" placeholder="sb_publishable_... 或 anon key" autocomplete="off"><span class="muted">复制 publishable key 的值，不要填 secret key。</span></label>
       <label>登录邮箱<input id="syncEmail" type="email" placeholder="用于接收登录链接"></label>
     </div><div class="actions"><button class="soft" id="syncConfigure">保存云端地址</button><button class="primary" id="syncLogin">发送登录链接</button><button class="ghost" id="syncLogout">退出云端登录</button></div>
     <div class="note" id="syncStatus">仅本机保存 · 尚未设置云端</div>
@@ -479,15 +479,30 @@ let pending=null;
     let config;try{config=JSON.parse(raw)}catch{return syncState('云端配置无效')};
     $('syncUrl').value=config.url;$('syncKey').value=config.key;
     if(!window.supabase?.createClient)return syncState('云端组件加载失败；本机仍可使用，稍后刷新重试');
-    cloudClient=window.supabase.createClient(config.url,config.key);
+    try{cloudClient=window.supabase.createClient(config.url,config.key)}
+    catch{return syncState('项目网址或公开密钥格式不正确，请核对后重新保存')}
     let current=cloudClient;
     cloudClient.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>{if(current===cloudClient)onCloudUser(session?.user||null)},0)});
     let {data,error}=await cloudClient.auth.getSession();if(error)return syncState('登录状态读取失败：'+error.message);
     await onCloudUser(data.session?.user||null)
   }
   $('syncConfigure').onclick=()=>{
-    let url=$('syncUrl').value.trim().replace(/\/$/,'');let keyValue=$('syncKey').value.trim();
-    if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||!keyValue||/service_role|sb_secret_/i.test(keyValue))return toast('请填写项目网址和公开密钥，勿填写 secret/service_role');
+    let rawUrl=$('syncUrl').value.trim(),keyValue=$('syncKey').value.trim(),parsed;
+    if(!rawUrl)return toast('请先填写 Supabase 的 Project URL');
+    try{parsed=new URL(/^https?:\/\//i.test(rawUrl)?rawUrl:'https://'+rawUrl)}
+    catch{return toast('项目网址格式不对：请复制 Supabase 的 Project URL')}
+    if(parsed.protocol!=='https:'||!parsed.hostname.toLowerCase().endsWith('.supabase.co')||parsed.username||parsed.password)
+      return toast('这不是 Supabase 项目网址；应类似 https://项目编号.supabase.co');
+    if(parsed.pathname!=='/'&&!/^\/(rest|auth|storage|functions)\/v1\/?$/i.test(parsed.pathname))
+      return toast('你填的可能是控制台网页地址；请复制 Project URL，不要复制浏览器地址栏');
+    let url=parsed.origin;
+    if(!keyValue)return toast('项目网址已识别；还需要填写 publishable key 的值');
+    if(/\s/.test(keyValue))return toast('公开密钥中有空格或换行，请只复制密钥的值');
+    if(/^sb_secret_/i.test(keyValue))return toast('这是 secret key，不能填在公开网页；请复制 publishable key');
+    if(keyValue.startsWith('eyJ')){try{let payload=JSON.parse(atob(keyValue.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(payload.role!=='anon')return toast('这是非公开密钥；请复制 anon 或 publishable key')}catch{return toast('旧版 anon key 内容不完整，请重新复制')}}
+    else if(!/^sb_publishable_[A-Za-z0-9_-]+$/.test(keyValue))
+      return toast('密钥格式不对：请复制以 sb_publishable_ 开头的完整值');
+    $('syncUrl').value=url;
     let old=localStorage.getItem(cloudConfigKey),next=JSON.stringify({url,key:keyValue});localStorage.setItem(cloudConfigKey,next);
     if(old!==next){cloudReady=false;cloudUser=null;cloudClient=null;cloudRevision=0;cloudDirty=false;cloudConflict=false;cloudRow=null;$('syncFirstRun').hidden=true;$('syncConflict').hidden=true}
     initCloud();toast('云端地址已保存，请登录邮箱')
