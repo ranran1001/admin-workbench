@@ -31,21 +31,27 @@ Deno.serve(async (request: Request) => {
     return reply({ error: "account_not_allowed" }, 403);
 
   let prompt: unknown;
+  let thinking: unknown;
   try {
-    prompt = (await request.json()).prompt;
+    const input = await request.json();
+    prompt = input.prompt;
+    thinking = input.thinking;
   } catch {
     return reply({ error: "invalid_json" }, 400);
   }
   if (typeof prompt !== "string" || prompt.length < 10 || prompt.length > 12000)
     return reply({ error: "prompt_length_invalid" }, 400);
+  if (thinking !== "enabled" && thinking !== "disabled")
+    return reply({ error: "thinking_mode_invalid" }, 400);
   try {
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + apiKey },
       body: JSON.stringify({
         model: "deepseek-flash",
-        thinking: { type: "disabled" },
-        max_tokens: 2200,
+        thinking: { type: thinking },
+        ...(thinking === "enabled" ? { reasoning_effort: "high" } : {}),
+        max_tokens: thinking === "enabled" ? 8192 : 2200,
         messages: [
           {
             role: "system",
