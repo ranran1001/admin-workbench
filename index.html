@@ -26,12 +26,13 @@
     .note{background:#edf6ed;color:#536d5d;border-left-color:#81ab87}.banner{background:#f8f4e7;border-color:#e8dfc3;color:#695d40}
     input:focus,select:focus,textarea:focus{border-color:#6b9b78;box-shadow:0 0 0 3px #7eac7e2e}
     @media(max-width:920px){.side{overflow:visible;max-height:none}.nav{flex:auto;overflow-x:auto}.nav button{white-space:nowrap}.brand-sub,.side-foot{display:none}}
+    .purchase-item{border:1px solid var(--line);background:#fff;border-radius:14px;padding:17px;margin:13px 0}.purchase-item summary{cursor:pointer;font-weight:700}.purchase-item .tablewrap{margin-top:15px}.purchase-item table{min-width:920px}.purchase-item td{white-space:normal;min-width:80px}.purchase-item td a{overflow-wrap:anywhere;color:var(--teal)}.purchase-sub{padding:10px 0;border-top:1px solid var(--line);font-size:13px}.purchase-sub:first-child{border-top:0}.purchase-item .formgrid{margin-top:12px}.purchase-item label textarea{min-height:70px}
   </style>
 </head>
 <body>
 <div class="shell">
   <aside class="side"><div class="brand">行政工作台</div><div class="brand-sub">ADMIN OPERATIONS / WORKBENCH</div><nav class="nav" aria-label="功能导航">
-    <button data-page="home" class="active">◫　今日总览</button><button data-page="inbox">✎　随手记事</button><button data-page="contracts">▤　合同节点</button><button data-page="supplies">◈　用品台账</button><button data-page="guides">▣　流程提示</button><button data-page="writing">✒　公文起草</button><button data-page="data">⇄　导入与导出</button><button data-page="sync">☁　多设备同步</button>
+    <button data-page="home" class="active">◫　今日总览</button><button data-page="inbox">✎　随手记事</button><button data-page="contracts">▤　合同节点</button><button data-page="supplies">◈　用品台账</button><button data-page="procurement">▣　采购比价</button><button data-page="guides">▣　流程提示</button><button data-page="writing">✒　公文起草</button><button data-page="data">⇄　导入与导出</button><button data-page="sync">☁　多设备同步</button>
   </nav><div class="side-foot">把分散的交代变成有负责人、有日期、有结果的事项。<br>行政工作台 · 示例数据</div></aside>
   <main>
     <header class="top"><div><span class="eyebrow">PERSONAL ADMIN WORKBENCH</span><h1 id="pageTitle">今天，先处理什么？</h1><div class="muted" id="todayText"></div></div><div><div class="pill">行政事务管理</div><div class="muted" id="globalSyncState" style="margin-top:8px;text-align:right">仅本机保存</div></div></header>
@@ -47,7 +48,9 @@
       <div class="cols"><div><div class="panel"><h2>先记下来，再整理</h2><p class="muted">试着输入：“领导让我明天联系供应商，确认打印纸报价”。输入会暂存在本机；要让电脑也看到，请核对日期并点「加入工作队列」，等待「已同步」。</p><textarea id="capture" aria-label="随手记录" placeholder="例如：周五前联系供应商，确认会议物料报价"></textarea><div class="muted" id="captureStatus">尚未输入；本机草稿不会自动成为待办</div><div class="actions"><button class="primary" id="parseBtn">整理成待办</button></div></div><div class="panel" id="draftPanel" hidden><div class="head"><h3>请核对，再保存</h3><span class="tag warn">等待确认</span></div><div class="formgrid"><label class="span2">事项<input id="draftTitle"></label><label>截止日期<input type="date" id="draftDue"></label><label>负责人<input id="draftOwner" placeholder="例如：我"></label><label class="span2">下一步动作<input id="draftNext" placeholder="例如：联系供应商确认报价"></label></div><div class="actions"><button class="primary" id="saveDraft">加入工作队列</button><button class="ghost" id="cancelDraft">取消</button></div></div></div><div class="panel"><div class="head"><h3>全部待办</h3><span class="tag" id="taskCount">0 条</span></div><div id="allTasks"></div></div></div>
     </section>
     <section id="contracts" class="section"><div class="panel"><h2>合同节点</h2><p class="muted">记录合同到期日与提前提醒天数。处理状态、下一步和责任人一起留在台账里。</p><div class="formgrid"><label>合同编号<input id="cId" placeholder="HT-003"></label><label>合同名称<input id="cName" placeholder="如：办公设备维护合同"></label><label>到期日<input id="cDue" type="date"></label><label>提前提醒天数<input id="cDays" type="number" min="0" value="30"></label><label>责任人<input id="cOwner" placeholder="如：行政"></label><label>下一步动作<input id="cNext" placeholder="如：联系对方确认续签"></label></div><div class="actions"><button class="primary" id="addContract">新增合同</button></div></div><div class="panel"><div class="head"><h3>合同台账</h3><span class="muted">按到期日排列</span></div><div class="tablewrap"><table><thead><tr><th>合同编号／名称</th><th>到期日</th><th>提前提醒</th><th>节点状态</th><th>责任人／下一步</th><th>操作</th></tr></thead><tbody id="contractRows"></tbody></table></div></div></section>
-    <section id="supplies" class="section"><div class="panel"><h2>用品流转</h2><p class="muted">采购入库和员工领用分别登记，库存由流水自动计算。</p><div class="formgrid"><label>用品名称<input id="sName" placeholder="如：A4 打印纸"></label><label>类型<select id="sType"><option value="in">采购入库</option><option value="out">领用出库</option></select></label><label>数量<input id="sQty" type="number" min="1" step="1" placeholder="数量"></label><label>购买方／领取人<input id="sPerson" placeholder="如：采购员／领取人"></label><label>发生日期<input id="sDate" type="date"></label><label>备注<input id="sNote" placeholder="如：订单号、领用部门"></label></div><div class="actions"><button class="primary" id="addStock">登记这笔流转</button></div></div><div class="cols"><div class="panel"><div class="head"><h3>当前库存</h3><span class="muted">按名称汇总</span></div><div id="stockSummary"></div></div><div class="panel"><div class="head"><h3>最近流水</h3><span class="muted">留痕记录</span></div><div id="stockHistory"></div></div></div></section>
+    <section id="supplies" class="section"><div class="panel"><h2>用品流转</h2><p class="muted">采购入库和员工领用分别登记，库存由流水自动计算；同名不同规格请写清名称，单位要一致。</p><div class="formgrid"><label>用品名称<input id="sName" placeholder="如：A4 打印纸 70g 500张/包"></label><label>类型<select id="sType"><option value="in">采购入库</option><option value="out">领用出库</option></select></label><label>数量<input id="sQty" type="number" min="1" step="1" placeholder="数量"></label><label>单位<input id="sUnit" value="件" placeholder="如：件、包、盒"></label><label>购买方／领取人<input id="sPerson" placeholder="如：采购员／领取人"></label><label>发生日期<input id="sDate" type="date"></label><label class="span2">备注<input id="sNote" placeholder="如：订单号、领用部门"></label></div><div class="actions"><button class="primary" id="addStock">登记这笔流转</button></div></div><div class="cols"><div class="panel"><div class="head"><h3>当前库存</h3><span class="muted">按名称及单位汇总</span></div><div id="stockSummary"></div></div><div class="panel"><div class="head"><h3>最近流水</h3><span class="muted">留痕记录</span></div><div id="stockHistory"></div></div></div></section>
+
+    <section id="procurement" class="section"><div class="panel"><h2>采购需求与三家比价</h2><p class="muted">先写清规格与数量，再登记商品链接或供应商报价；算到手价、核对发票和交期，由实际审批人决定。这里的示例全部虚构，商品和价格需自行核对；暂无自动抓价、自动下单或平台 API。</p><input type="hidden" id="pEditId"><div class="formgrid"><label>需求编号<input id="pId" placeholder="如：CG-003"></label><label>申请日期<input id="pDate" type="date"></label><label>物品名称<input id="pName" placeholder="如：A4 复印纸"></label><label>关键规格<input id="pSpec" placeholder="如：70g，500张/包"></label><label>统一比较单位<input id="pUnit" placeholder="如：包"></label><label>采购数量（统一单位）<input id="pQty" type="number" min="1" step="1"></label><label>预算上限（元，可留空）<input id="pBudget" type="number" min="0" step="0.01"></label><label>希望到货日<input id="pDue" type="date"></label><label>申请部门／人<input id="pRequester"></label><label>用途<input id="pPurpose"></label><label class="span2">规格、发票、交期等验收要求<input id="pRequirements" placeholder="例：需要开发票；同规格；送达指定地点"></label><label class="span2">下一步动作<input id="pNext" placeholder="例：询价并核实发票"></label></div><div class="actions"><button class="primary" id="pSave">新增采购需求</button><button class="ghost" id="pCancel" hidden>取消编辑</button></div></div><div class="panel"><div class="head"><h3>采购工作队列</h3><span class="tag" id="pCount">0 项</span></div><input id="pSearch" style="width:100%" placeholder="按编号、物品、状态、商家搜索"><div class="actions"><button class="soft" id="pExport">导出采购比价 CSV</button><button class="ghost" id="pLoadSamples">加入三组虚构采购示例</button><span class="muted">记录、报价、审批和收货都会包含在完整备份与已配置的云端同步中。</span></div><div id="pList"></div></div></section>
 
     <section id="guides" class="section">
       <div class="cols"><div class="panel">
@@ -74,7 +77,7 @@
         <div id="guideList" style="margin-top:12px"></div>
       </div></div>
     </section>
-    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">支持 CSV 与标准 .xlsx 文件（读取第一个工作表）。按对应台账的英文列名填写；导入先预览，再按编号追加并跳过重复。复杂合并单元格与旧版 .xls 暂不支持；多设备同步请在左侧单独配置。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 或 .xlsx 文件<input type="file" id="importFile" accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel" id="migrationPanel"><h2>换电脑 · 完整迁移</h2><p class="muted">一个 ZIP 包含网页程序、四类台账、例文库、二维码与迁移说明。换电脑后解压，打开工作台并选择其中的 backup.json 恢复。浏览器通知权限属于设备设置，不随数据迁移。</p><div class="actions"><button class="primary" id="downloadPackage">下载完整迁移包 ZIP</button><button class="soft" id="downloadBackup">只下载数据 JSON</button></div><div class="formgrid" style="margin-top:18px"><label>选择备份 JSON 文件<input type="file" id="restoreFile" accept=".json,application/json"></label></div><div class="actions"><button class="ghost" id="previewRestore">预览恢复内容</button></div><div id="restorePreview"></div><p class="muted">恢复会替换本浏览器的四类台账和例文库，请先下载当前数据备份。迁移包中可能有私人资料，请妥善保存；手机与电脑之间仍需手动传递备份。</p></div><div class="panel"><h3>导入规则</h3><p class="muted">推荐先导出一份对应台账，按相同列名填写后再导入。日期列可用 Excel 日期单元格或 YYYY-MM-DD；导入前核对条数和前几行，确认后才写入本机数据。</p></div></section>
+    <section id="data" class="section"><div class="panel"><h2>台账导入与导出</h2><div class="note">原有四类台账支持 CSV／标准 .xlsx 导入、CSV 导出。采购比价可在「采购比价」导出 CSV；采购四页 Excel 模板尚不能直接导入工作台，报价请在页面录入。导入先预览，再按编号追加并跳过重复。</div><div class="actions"><button class="soft" data-export="tasks">导出待办 CSV</button><button class="soft" data-export="contracts">导出合同 CSV</button><button class="soft" data-export="stock">导出用品 CSV</button><button class="soft" data-export="guides">导出流程 CSV</button><button class="soft" data-goto="procurement">打开采购比价</button></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><div class="formgrid"><label>导入到哪张台账<select id="importType"><option value="tasks">待办</option><option value="contracts">合同</option><option value="stock">用品流水</option><option value="guides">流程提示</option></select></label><label>选择 CSV 或 .xlsx 文件<input type="file" id="importFile" accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label></div><div class="actions"><button class="primary" id="importBtn">预览导入结果</button><button class="ghost" id="resetBtn">恢复示例数据</button></div><div id="importPreview"></div></div><div class="panel" id="migrationPanel"><h2>换电脑 · 完整迁移</h2><p class="muted">ZIP 包含网页程序、四类原有台账、例文库、采购需求及报价、二维码与迁移说明。换设备解压后，打开工作台并选择其中的 backup.json 恢复。浏览器通知权限不随数据迁移。</p><div class="actions"><button class="primary" id="downloadPackage">下载完整迁移包 ZIP</button><button class="soft" id="downloadBackup">只下载数据 JSON</button></div><div class="formgrid" style="margin-top:18px"><label>选择备份 JSON 文件<input type="file" id="restoreFile" accept=".json,application/json"></label></div><div class="actions"><button class="ghost" id="previewRestore">预览恢复内容</button></div><div id="restorePreview"></div><p class="muted">完整恢复会替换本浏览器的四类台账、例文库与采购记录，请先下载当前数据备份。迁移包可能含私人资料，请妥善保存；未配置云端时仍需手动传递备份。</p></div><div class="panel"><h3>导入规则</h3><p class="muted">原有四类台账建议先导出对应 CSV，再按相同英文列名填写后导入。日期使用 Excel 日期单元格或 YYYY-MM-DD；旧用品 CSV 没有 unit 列时按“件”导入。采购四页模板是独立参考，不能直接导入当前页面。</p></div></section>
     <section id="writing" class="section">
       <div class="cols"><div class="panel"><h2>AI 公文起草</h2><p class="muted">先填写事实与要点，选择可参考的例文，再生成提示词或连接 DeepSeek 起草。AI 输出是草稿，日期、数字、政策依据和审批措辞请人工核对。</p>
         <div class="formgrid">
@@ -93,7 +96,7 @@
         <div class="panel"><h3>连接 DeepSeek</h3><p class="muted">先到「多设备同步」登录云端账号，并在 Supabase 部署名为 draft-document 的公文函数。DeepSeek API 密钥只放在云端密钥设置里。</p><span class="tag" id="wConnectState">等待云端配置</span><p class="muted" id="wErrorDetails" role="status" aria-live="polite"></p></div>
         <div class="panel"><h3>起草结果</h3><textarea id="wDraft" style="min-height:240px" placeholder="DeepSeek 生成的草稿会出现在这里，你可以继续修改。"></textarea><div class="actions"><button class="ghost" id="wCopy">复制草稿</button><button class="soft" id="wSaveDraft">把草稿存入例文库</button></div></div>
       </div></div>
-      <div class="cols"><div class="panel"><h3>保存自己的例文</h3><p class="muted">例文存在当前浏览器，完整迁移包和数据 JSON 会一起备份；尚未接入多设备同步。</p><div class="formgrid">
+      <div class="cols"><div class="panel"><h3>保存自己的例文</h3><p class="muted">例文先保存在当前浏览器；完整迁移包和数据 JSON 会一起备份，配置云端后随台账同步。</p><div class="formgrid">
         <label>例文名称<input id="wSampleName" placeholder="例如：部门会议通知"></label><label>类别<select id="wSampleType"><option>通知</option><option>请示</option><option>会议纪要</option><option>工作报告</option><option>函</option><option>活动方案</option><option>其他</option></select></label>
         <label class="span2">例文内容<textarea id="wSampleText" style="min-height:140px" placeholder="粘贴可参考的例文；使用前核对并移除敏感信息"></textarea></label>
       </div><div class="actions"><button class="primary" id="wSaveExample">保存例文</button><button class="ghost" id="wClearExample">清空</button></div></div>
@@ -115,7 +118,7 @@
       <li>把项目网址和<strong>公开密钥</strong>填到上方，输入邮箱并点邮件登录链接。</li>
       <li>第一台设备选「上传本机」，等出现「已同步」；第二台设备同邮箱登录，选「下载云端」。</li>
     </ol><p class="muted">手机写完后，请等状态显示「已同步」再关闭网页；若显示「本机已保存／离线待同步」，电脑此时可能还看不到。普通浏览器关闭网页后，本机记录通常仍在；清除网站数据或使用无痕模式会使本机记录消失。</p></div></section>
-    <footer class="footer">行政工作台 · 事项、合同与用品及公文草稿管理。初始示例记录均为虚构。云端连接需由使用者单独配置。</footer>
+    <footer class="footer">行政工作台 · 事项、合同、用品、采购比价及公文草稿管理。初始示例记录和报价均为虚构。云端连接需由使用者单独配置。</footer>
   </main>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -125,9 +128,13 @@
   const key='admin-workbench-demo-v1';
   const day=(n=0)=>{let d=new Date();d.setDate(d.getDate()+n);return d.toLocaleDateString('en-CA')};
   const guideExamples=()=>[{id:'G-001',category:'报销',title:'示例｜费用报销',steps:'核对报销内容和票据\n按公司规定确认预算与审批人\n提交报销申请并留存回单',reason:'先核对材料与审批顺序，减少遗漏和退回；具体签字人请按公司制度填写。',contact:'待填写：实际审批人／财务联系人',phone:'',location:'待填写：公司报销系统或提交地点',materials:'待填写：公司规定的票据与申请材料',due:'',days:30},{id:'G-002',category:'物业',title:'示例｜物业报修对接',steps:'记录问题、位置与发生时间\n联系物业并说明情况\n跟进处理进度和验收结果',reason:'先留存现场信息，便于沟通、跟进及复盘。',contact:'待填写：物业联系人',phone:'',location:'待填写：物业服务台',materials:'待填写：照片／报修单',due:'',days:30},{id:'G-003',category:'证照',title:'示例｜证照到期与更新',steps:'核实证照名称、到期日及办理渠道\n向主管部门核对最新要求与材料\n按实际流程办理并记录新有效期',reason:'主管部门、办理地点与材料可能变化，办理前需核实。',contact:'待填写：内部责任人',phone:'',location:'待填写：办事地点或官网',materials:'待填写：实际要求的材料',due:'',days:30}];
-  const sample=()=>({tasks:[{id:'T-001',title:'核对部门会议物料清单',due:day(0),owner:'行政',next:'与负责人确认缺项',done:false},{id:'T-002',title:'跟进供应商设备维修报价',due:day(2),owner:'行政',next:'催回报价并比较交付时间',done:false}],contracts:[{id:'HT-001',name:'办公设备维护合同',due:day(18),days:30,owner:'行政',next:'联系供应商确认续签安排',done:false},{id:'HT-002',name:'场地服务合同',due:day(53),days:30,owner:'行政',next:'核对服务期和预算',done:false}],stock:[{id:'S-001',name:'A4打印纸',type:'in',qty:20,person:'采购员',date:day(-8),note:'示例采购'},{id:'S-002',name:'A4打印纸',type:'out',qty:3,person:'办公室',date:day(-2),note:'示例领用'},{id:'S-003',name:'中性笔',type:'in',qty:40,person:'采购员',date:day(-5),note:'示例采购'}],guides:guideExamples()});
+  function procurementExamples(){
+    const make=(id,name,spec,unit,qty,budget,options)=>({id,date:day(),name:'示例｜'+name,spec,unit,qty,budget,due:day(7),requester:'虚构示例部门',purpose:'示例：日常办公补充',requirements:'同规格、核实发票及送达时间；实际标准以单位制度为准',next:'核实报价有效期与发票，由实际负责人审批',status:'比价中',selectedQuoteId:'',recommendation:'',approver:'',decision:'',orderNo:'',actualPaid:'',receipts:[],quotes:options.map((o,i)=>({id:id+'-BJ-'+(i+1),platform:o[0],supplier:'虚构商家'+['甲','乙','丙'][i],url:'',quotedAt:day(),spec,packSize:o[1],packUnit:o[2],packQty:o[3],price:o[4],shipping:o[5],discount:o[6],invoice:'待核实',delivery:day(5+i),fit:'待核实',note:'虚构报价；不是平台实时价格，须核实后才能作为真实询价依据'}))});
+    return [make('CG-001','A4 复印纸','70g；500张/包；5包/箱','包',10,210,[['京东',5,'箱',2,96,12,0],['淘宝',5,'箱',2,102,0,8],['拼多多',5,'箱',2,92,10,0]]),make('CG-002','中性笔','0.5mm；黑色；12支/盒','支',24,65,[['京东',12,'盒',2,24,8,0],['淘宝',12,'盒',2,27,0,3],['拼多多',12,'盒',2,23,6,0]]),make('CG-003','抽纸','三层；100抽/包；6包/提','包',12,55,[['京东',6,'提',2,24,0,0],['淘宝',6,'提',2,22,6,0],['拼多多',6,'提',2,20,8,0]])];
+  }
+  const sample=()=>({tasks:[{id:'T-001',title:'核对部门会议物料清单',due:day(0),owner:'行政',next:'与负责人确认缺项',done:false},{id:'T-002',title:'跟进供应商设备维修报价',due:day(2),owner:'行政',next:'催回报价并比较交付时间',done:false}],contracts:[{id:'HT-001',name:'办公设备维护合同',due:day(18),days:30,owner:'行政',next:'联系供应商确认续签安排',done:false},{id:'HT-002',name:'场地服务合同',due:day(53),days:30,owner:'行政',next:'核对服务期和预算',done:false}],stock:[{id:'S-001',name:'A4打印纸',type:'in',qty:20,person:'采购员',date:day(-8),note:'示例采购'},{id:'S-002',name:'A4打印纸',type:'out',qty:3,person:'办公室',date:day(-2),note:'示例领用'},{id:'S-003',name:'中性笔',type:'in',qty:40,person:'采购员',date:day(-5),note:'示例采购'}],guides:guideExamples(),procurements:procurementExamples()});
   const writingExamples=()=>[{id:'W-001',type:'通知',title:'示例｜部门例会通知',body:'关于召开部门例会的通知\n\n各部门：\n为梳理近期工作安排，拟召开部门例会。请各部门按实际通知核对会议时间、地点和参会人员，并提前准备相关材料。\n\n会议时间：【待填写】\n会议地点：【待填写】\n参会人员：【待填写】\n\n特此通知。\n\n【单位名称】\n【日期】'}];
-  let syncReady=false,db;try{db=JSON.parse(localStorage.getItem(key))||sample()}catch{db=sample()}const persist=()=>{localStorage.setItem(key,JSON.stringify(db));if(syncReady)markLocalChange()};if(!Array.isArray(db.guides)){db.guides=guideExamples();persist()}if(!Array.isArray(db.writingSamples)){db.writingSamples=writingExamples();persist()}
+  let syncReady=false,db;try{db=JSON.parse(localStorage.getItem(key))||sample()}catch{db=sample()}const persist=()=>{localStorage.setItem(key,JSON.stringify(db));if(syncReady)markLocalChange()};if(!Array.isArray(db.guides)){db.guides=guideExamples();persist()}if(!Array.isArray(db.writingSamples)){db.writingSamples=writingExamples();persist()}if(!Array.isArray(db.procurements)){db.procurements=[];persist()}
   const $=id=>document.getElementById(id),safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const diff=s=>Math.ceil((new Date(s+'T12:00:00')-new Date(day()+'T12:00:00'))/86400000);
   const status=(due,days=0,done=false)=>done?['已完成','tag']:diff(due)<0?['已逾期','tag danger']:diff(due)===0?['今天到期','tag danger']:diff(due)<=days?['进入提醒窗口','tag warn']:['正常','tag'];
@@ -185,21 +192,22 @@
     const active=db.tasks.filter(t=>!t.done),alerts=db.contracts.filter(c=>!c.done&&diff(c.due)<=Number(c.days)),guideAlerts=db.guides.filter(g=>g.due&&Number.isFinite(diff(g.due))&&diff(g.due)<=Number(g.days));
     $('todayText').textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
     $('heroCount').textContent=$('statOpen').textContent=active.length;$('statUrgent').textContent=active.filter(t=>diff(t.due)<=0).length;
-    $('statContract').textContent=alerts.length;$('statStock').textContent=new Set(db.stock.map(s=>s.name)).size;$('taskCount').textContent=db.tasks.length+' 条';
+    $('statContract').textContent=alerts.length;$('statStock').textContent=new Set(db.stock.map(s=>s.name+'|'+(s.unit||'件'))).size;$('taskCount').textContent=db.tasks.length+' 条';
     const taskHTML=(t)=>'<div class="item"><div><b>'+safe(t.title)+'</b><p>'+safe(t.owner||'待指定')+' · '+safe(t.next||'待明确下一步')+' · '+safe(t.due||'未定日期')+'</p></div><div style="display:flex;gap:7px;align-items:center"><span class="'+status(t.due,0,t.done)[1]+'">'+status(t.due,0,t.done)[0]+'</span><button class="ghost tiny" data-task="'+safe(t.id)+'">'+(t.done?'恢复':'完成')+'</button></div></div>';
     $('allTasks').innerHTML=db.tasks.length?db.tasks.slice().sort((a,b)=>Number(a.done)-Number(b.done)||a.due.localeCompare(b.due)).map(taskHTML).join(''):'<div class="empty">还没有待办。先把一件事记下来吧。</div>';
     $('homeTasks').innerHTML=active.length?active.slice().sort((a,b)=>a.due.localeCompare(b.due)).slice(0,4).map(taskHTML).join(''):'<div class="empty">今天的队列已经清空。</div>';
     $('homeAlerts').innerHTML=alerts.length?alerts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(c=>'<div class="item"><div><b>'+safe(c.name)+'</b><p>'+safe(c.id)+' · 到期 '+safe(c.due)+'</p></div><span class="'+status(c.due,c.days)[1]+'">'+status(c.due,c.days)[0]+'</span></div>').join(''):'<div class="empty">暂时没有进入提醒窗口的合同。</div>';
     if(guideAlerts.length)$('homeAlerts').innerHTML+=guideAlerts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(g=>'<div class="item"><div><b>'+safe(g.title)+'</b><p>流程提醒 · 到期 '+safe(g.due)+' · '+safe(g.contact||'待指定联系人')+'</p></div><span class="'+status(g.due,g.days)[1]+'">'+status(g.due,g.days)[0]+'</span></div>').join('');
     $('contractRows').innerHTML=db.contracts.slice().sort((a,b)=>a.due.localeCompare(b.due)).map(c=>'<tr><td>'+safe(c.id)+'<br><span class="muted">'+safe(c.name)+'</span></td><td>'+safe(c.due)+'</td><td>'+safe(c.days)+' 天</td><td><span class="'+status(c.due,c.days,c.done)[1]+'">'+status(c.due,c.days,c.done)[0]+'</span></td><td>'+safe(c.owner||'—')+'<br><span class="muted">'+safe(c.next||'—')+'</span></td><td><button class="ghost tiny" data-contract="'+safe(c.id)+'">'+(c.done?'恢复跟进':'标记已处理')+'</button></td></tr>').join('');
-    const balances={};for(const s of db.stock)balances[s.name]=(balances[s.name]||0)+(s.type==='in'?Number(s.qty):-Number(s.qty));
-    $('stockSummary').innerHTML=Object.keys(balances).length?Object.entries(balances).map(([n,q])=>'<div class="item"><b>'+safe(n)+'</b><span class="'+(q<0?'tag danger':'tag')+'">'+q+' 件</span></div>').join(''):'<div class="empty">还没有用品记录。</div>';
-    $('stockHistory').innerHTML=db.stock.slice().reverse().slice(0,6).map(s=>'<div class="item"><div><b>'+safe(s.name)+' · '+(s.type==='in'?'入库':'领用')+' '+safe(s.qty)+'</b><p>'+safe(s.date)+' · '+safe(s.person)+' · '+safe(s.note||'')+'</p></div></div>').join('');
+    const balances=new Map();for(const s of db.stock){let k=JSON.stringify([s.name,s.unit||'件']);balances.set(k,(balances.get(k)||0)+(s.type==='in'?Number(s.qty):-Number(s.qty)))}
+    $('stockSummary').innerHTML=balances.size?[...balances].map(([k,q])=>{let [n,u]=JSON.parse(k);return '<div class="item"><b>'+safe(n)+'</b><span class="'+(q<0?'tag danger':'tag')+'">'+q+' '+safe(u)+'</span></div>'}).join(''):'<div class="empty">还没有用品记录。</div>';
+    $('stockHistory').innerHTML=db.stock.slice().reverse().slice(0,6).map(s=>'<div class="item"><div><b>'+safe(s.name)+' · '+(s.type==='in'?'入库':'领用')+' '+safe(s.qty)+' '+safe(s.unit||'件')+'</b><p>'+safe(s.date)+' · '+safe(s.person)+' · '+safe(s.note||'')+'</p></div></div>').join('');
     renderGuides();
     renderWriting();
+    renderProcurements();
     checkNotifications();
   }
-  function page(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('pageTitle').textContent=({home:'今天，先处理什么？',inbox:'让交代都有下文',contracts:'每份合同都有节点',supplies:'每笔领用都有记录',guides:'每一步都有提示',writing:'让公文先有一份可核对的草稿',data:'把台账带进带出',sync:'每次修改都有保存状态'})[id];window.scrollTo({top:0,behavior:'smooth'})}
+  function page(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('pageTitle').textContent=({home:'今天，先处理什么？',inbox:'让交代都有下文',contracts:'每份合同都有节点',supplies:'每笔领用都有记录',procurement:'让每一次采购都有依据',guides:'每一步都有提示',writing:'让公文先有一份可核对的草稿',data:'把台账带进带出',sync:'每次修改都有保存状态'})[id];window.scrollTo({top:0,behavior:'smooth'})}
   document.addEventListener('click',e=>{let el=e.target.closest('[data-page],[data-goto],[data-task],[data-contract],[data-export]');if(!el)return;if(el.dataset.page||el.dataset.goto)page(el.dataset.page||el.dataset.goto);if(el.dataset.task){let t=db.tasks.find(x=>x.id===el.dataset.task);if(t){t.done=!t.done;persist();render()}}if(el.dataset.contract){let c=db.contracts.find(x=>x.id===el.dataset.contract);if(c){c.done=!c.done;persist();render()}}if(el.dataset.export)exportCSV(el.dataset.export)});
 
   const guideFields=['category','title','steps','reason','contact','phone','location','materials','due','days'];
@@ -243,7 +251,107 @@
   $('parseBtn').onclick=()=>{let s=$('capture').value.trim();if(!s)return toast('先写下一句话');let due=day(1);if(/今天/.test(s))due=day();else if(/后天/.test(s))due=day(2);else if(/明天/.test(s))due=day(1);else {let wd=s.match(/(?:下)?周([一二三四五六日天])/);if(wd){let m={'日':0,'天':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6};let n=m[wd[1]],delta=(n-new Date().getDay()+7)%7+(wd[0].startsWith('下')?7:0);due=day(delta)}let explicit=s.match(/(\d{1,2})月(\d{1,2})[日号]?/);if(explicit){let year=new Date().getFullYear(),candidate=new Date(year,Number(explicit[1])-1,Number(explicit[2]));if(candidate.getMonth()===Number(explicit[1])-1&&candidate.getDate()===Number(explicit[2])){if(candidate<new Date(day()))year++;due=[year,String(explicit[1]).padStart(2,'0'),String(explicit[2]).padStart(2,'0')].join('-')}}} $('draftTitle').value=s.replace(/^(领导让我|让我|记一下|提醒我)/,'').trim();$('draftDue').value=due;$('draftOwner').value='我';$('draftNext').value='确认需求并推进';$('draftPanel').hidden=false;toast('已整理成草稿，请核对日期与事项')};
   $('saveDraft').onclick=()=>{let title=$('draftTitle').value.trim(),due=$('draftDue').value;if(!title||!due)return toast('请补全事项和截止日期');db.tasks.push({id:'T-'+Date.now(),title,due,owner:$('draftOwner').value.trim(),next:$('draftNext').value.trim(),done:false});persist();render();$('draftPanel').hidden=true;$('capture').value='';localStorage.removeItem(captureDraftKey);captureState();toast('已加入工作队列')};$('cancelDraft').onclick=()=>$('draftPanel').hidden=true;
   $('addContract').onclick=()=>{let id=$('cId').value.trim(),name=$('cName').value.trim(),due=$('cDue').value;if(!id||!name||!due)return toast('请填写合同编号、名称和到期日');if(db.contracts.some(c=>c.id===id))return toast('合同编号已存在');db.contracts.push({id,name,due,days:Math.max(0,Number($('cDays').value)||0),owner:$('cOwner').value.trim(),next:$('cNext').value.trim(),done:false});persist();render();['cId','cName','cDue','cOwner','cNext'].forEach(i=>$(i).value='');toast('合同已加入节点台账')};
-  $('sDate').value=day();$('addStock').onclick=()=>{let name=$('sName').value.trim(),qty=Number($('sQty').value),type=$('sType').value;if(!name||!Number.isInteger(qty)||qty<=0||!$('sDate').value)return toast('请填写用品名称、正整数数量和日期');let bal=db.stock.filter(s=>s.name===name).reduce((n,s)=>n+(s.type==='in'?Number(s.qty):-Number(s.qty)),0);if(type==='out'&&qty>bal)return toast('领用数量不能超过当前库存 '+bal);db.stock.push({id:'S-'+Date.now(),name,type,qty,person:$('sPerson').value.trim()||'未记录',date:$('sDate').value,note:$('sNote').value.trim()});persist();render();['sName','sQty','sPerson','sNote'].forEach(i=>$(i).value='');toast('流水已登记')};
+  $('sDate').value=day();$('addStock').onclick=()=>{let name=$('sName').value.trim(),unit=$('sUnit').value.trim(),qty=Number($('sQty').value),type=$('sType').value;if(!name||!unit||!Number.isInteger(qty)||qty<=0||!$('sDate').value)return toast('请填写用品名称、单位、正整数数量和日期');let bal=db.stock.filter(s=>s.name===name&&(s.unit||'件')===unit).reduce((n,s)=>n+(s.type==='in'?Number(s.qty):-Number(s.qty)),0);if(type==='out'&&qty>bal)return toast('领用数量不能超过当前库存 '+bal+' '+unit);db.stock.push({id:'S-'+Date.now(),name,type,qty,unit,person:$('sPerson').value.trim()||'未记录',date:$('sDate').value,note:$('sNote').value.trim()});persist();render();['sName','sQty','sPerson','sNote'].forEach(i=>$(i).value='');toast('流水已登记')};
+  // Procurement quotes are saved with their demand; every accepted receipt creates one stock entry.
+  const purchaseFields=['id','date','name','spec','unit','qty','budget','due','requester','purpose','requirements','next'];
+  const purchaseId=()=> 'CG-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
+  const purchaseNumber=(value)=>{let n=Number(value);return Number.isFinite(n)&&n>=0?n:NaN};
+  const quoteTotal=q=>Number(q.packQty)*Number(q.price)+Number(q.shipping||0)-Number(q.discount||0);
+  const quoteUnits=q=>Number(q.packQty)*Number(q.packSize);
+  const money=n=>Number.isFinite(n)?n.toFixed(2):'—';
+  const availablePurchaseQty=p=>Math.max(0,Number(p.qty)-((p.receipts||[]).reduce((v,r)=>v+Number(r.qty||0),0)));
+  function savePurchaseData(next,message){
+    try{localStorage.setItem(key,JSON.stringify(next))}catch{toast('本机保存失败，未更改采购记录；请检查浏览器空间');return false}
+    db=next;markLocalChange();render();toast(message);return true
+  }
+  function purchaseOption(value,choices){return choices.map(x=>'<option value="'+safe(x)+'"'+(x===value?' selected':'')+'>'+safe(x)+'</option>').join('')}
+  function renderProcurements(){
+    let opened=new Set([...$('pList').querySelectorAll('details.purchase-item[open]')].map(el=>el.dataset.purchaseId));
+    let search=$('pSearch').value.trim().toLowerCase();let rows=db.procurements.filter(p=>[p.id,p.name,p.spec,p.status,p.requester,...(p.quotes||[]).map(q=>q.supplier)].some(v=>String(v||'').toLowerCase().includes(search)));
+    $('pCount').textContent=db.procurements.length+' 项';
+    $('pList').innerHTML=rows.length?rows.map(p=>{
+      let received=(p.receipts||[]).reduce((n,r)=>n+Number(r.qty||0),0),remaining=availablePurchaseQty(p),quotes=p.quotes||[];
+      let quoteRows=quotes.map(q=>{
+        let total=quoteTotal(q),units=quoteUnits(q),comparable=units===Number(p.qty),safeUrl=/^https:\/\/[^\s]+$/i.test(q.url||'')?'<a target="_blank" rel="noopener noreferrer" href="'+safe(q.url)+'">打开商品</a>':'—';
+        return '<tr><td>'+safe(q.platform)+'<br>'+safe(q.supplier)+'</td><td>'+safe(q.spec)+'<br>'+safe(q.packQty)+' '+safe(q.packUnit)+' × '+safe(q.packSize)+' '+safe(p.unit)+'</td><td>'+money(total)+' 元<br>'+money(total/units)+' 元/'+safe(p.unit)+'</td><td>'+safe(q.invoice)+'<br>'+safe(q.delivery||'日期待核实')+'</td><td>'+safe(q.fit)+' · '+(comparable?'同数量':'数量不同，请核对')+'<br>'+safe(q.quotedAt||'日期待核实')+'</td><td>'+safeUrl+'<br>'+safe(q.note||'')+'</td><td><button class="ghost tiny" data-p-action="editQuote" data-p="'+safe(p.id)+'" data-q="'+safe(q.id)+'">修改</button> <button class="ghost tiny red" data-p-action="deleteQuote" data-p="'+safe(p.id)+'" data-q="'+safe(q.id)+'">删除</button></td></tr>'
+      }).join('');
+      let quoteOptions='<option value="">请选择报价</option>'+quotes.map(q=>'<option value="'+safe(q.id)+'"'+(p.selectedQuoteId===q.id?' selected':'')+'>'+safe(q.supplier)+' · '+money(quoteTotal(q))+' 元</option>').join('');
+      let receipts=(p.receipts||[]).map(r=>'<div class="purchase-sub">'+safe(r.date)+' · '+safe(r.qty)+' '+safe(p.unit)+' · 流水 '+safe(r.stockId)+' · 订单 '+safe(r.orderNo||'未记录')+'</div>').join('');
+      return '<details class="purchase-item" data-purchase-id="'+safe(p.id)+'"'+(opened.has(p.id)?' open':'')+'><summary>'+safe(p.name)+' · '+safe(p.id)+' <span class="tag">'+safe(p.status||'比价中')+'</span></summary><p class="muted">申请 '+safe(p.date||'—')+' · '+safe(p.spec)+' · 需 '+safe(p.qty)+' '+safe(p.unit)+' · 预算 '+(p.budget===''?'未填':money(Number(p.budget))+' 元')+' · 已入库 '+received+' '+safe(p.unit)+'</p><p class="muted">'+safe(p.requester||'未填申请人')+' · 希望到货 '+safe(p.due||'未填')+' · 用途：'+safe(p.purpose||'未填')+'；要求：'+safe(p.requirements||'未填')+'；下一步：'+safe(p.next||'未填')+'</p><div class="actions"><button class="ghost tiny" data-p-action="edit" data-p="'+safe(p.id)+'">编辑需求</button><button class="ghost tiny red" data-p-action="delete" data-p="'+safe(p.id)+'">删除需求</button></div>'+
+      '<h3>询价记录（'+quotes.length+' 家）</h3><div class="tablewrap"><table><thead><tr><th>平台／商家</th><th>规格／报价单位</th><th>总到手价／折算单价</th><th>发票／交期</th><th>核对情况</th><th>链接／备注</th><th>操作</th></tr></thead><tbody>'+quoteRows+'</tbody></table></div><p class="muted">总到手价＝报价单位数量×单价＋运费－优惠。统一单位数量不足或超出需求时，请重新询价；页面不自动判断哪家值得采购。</p>'+
+      '<form class="formgrid" data-p-form="quote" data-p="'+safe(p.id)+'"><input type="hidden" name="quoteId"><label>平台<input name="platform" placeholder="京东／淘宝／拼多多／线下"></label><label>供应商／店铺<input name="supplier"></label><label class="span2">商品链接（可留空）<input name="url" type="url" placeholder="https://..."></label><label class="span2">该报价的商品规格<input name="spec" value="'+safe(p.spec)+'"></label><label>每报价单位含统一单位数<input name="packSize" type="number" min="1" step="1" value="1"></label><label>报价单位<input name="packUnit" placeholder="箱／盒／包"></label><label>采购报价单位数量<input name="packQty" type="number" min="1" step="1"></label><label>每报价单位价格（元）<input name="price" type="number" min="0" step="0.01"></label><label>运费（元）<input name="shipping" type="number" min="0" step="0.01" value="0"></label><label>可用优惠（元）<input name="discount" type="number" min="0" step="0.01" value="0"></label><label>发票情况<select name="invoice">'+purchaseOption('待核实',['待核实','可开专票','可开普票','无法开票'])+'</select></label><label>预计到货日<input name="delivery" type="date"></label><label>规格／交期／票据核对<select name="fit">'+purchaseOption('待核实',['待核实','符合（已人工核对）','不符合'])+'</select></label><label>询价日期<input name="quotedAt" type="date" value="'+day()+'"></label><label class="span2">核价说明及风险<input name="note" placeholder="例：截图留存位置、优惠券使用条件"></label><div class="actions span2"><button class="soft" type="button" data-p-action="saveQuote" data-p="'+safe(p.id)+'">保存报价</button><button class="ghost" type="reset">清空报价表单</button></div></form>'+
+      '<h3>推荐与审批记录</h3><form class="formgrid" data-p-form="decision" data-p="'+safe(p.id)+'"><label>推荐报价<select name="selectedQuoteId">'+quoteOptions+'</select></label><label>实际审批人<input name="approver" value="'+safe(p.approver||'')+'"></label><label class="span2">推荐理由／不足三家说明<input name="recommendation" value="'+safe(p.recommendation||'')+'" placeholder="价格、发票、交期、规格；不足三家须说明"></label><label>审批结果（手动登记）<select name="decision">'+purchaseOption(p.decision||'待审批',['待审批','已批准','未批准'])+'</select></label><div class="actions span2"><button class="soft" type="button" data-p-action="saveDecision" data-p="'+safe(p.id)+'">保存审批记录</button></div></form><p class="muted">系统仅记录现实中的审批结论，不能代替真实审批。选定报价前请核实发票、规格与交期。</p>'+
+      '<h3>下单及验收入库</h3><p class="muted">已入库 '+received+' '+safe(p.unit)+'，待收 '+remaining+' '+safe(p.unit)+'。每次确认到货会新增一笔用品入库流水。</p>'+receipts+'<form class="formgrid" data-p-form="receipt" data-p="'+safe(p.id)+'"><label>订单编号<input name="orderNo" value="'+safe(p.orderNo||'')+'"></label><label>订单实付（元，可留空）<input name="actualPaid" type="number" min="0" step="0.01" value="'+safe(p.actualPaid||'')+'"></label><label>此次验收数量（'+safe(p.unit)+'）<input name="receivedQty" type="number" min="1" max="'+remaining+'" step="1"></label><label>验收日期<input name="receivedDate" type="date" value="'+day()+'"></label><div class="actions span2"><button class="primary" type="button" data-p-action="receive" data-p="'+safe(p.id)+'"'+(!remaining?' disabled':'')+'>确认验收并登记入库</button></div></form></details>'
+    }).join(''):'<div class="empty">暂无匹配的采购需求。</div>';
+  }
+  $('pSearch').addEventListener('input',renderProcurements);$('pDate').value=day();
+  $('pLoadSamples').onclick=()=>{
+    let examples=procurementExamples().filter(p=>!db.procurements.some(current=>current.name===p.name&&current.requester==='虚构示例部门'));
+    if(!examples.length)return toast('三组虚构示例已经在采购列表里，无需重复添加');
+    let used=new Set(db.procurements.map(p=>p.id));for(const p of examples){if(used.has(p.id))p.id='CG-示例-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);used.add(p.id)}
+    if(!confirm('仅追加 '+examples.length+' 组虚构采购需求及报价，不覆盖现有记录。确定加入？'))return;
+    savePurchaseData({...db,procurements:[...db.procurements,...examples]},'已加入 '+examples.length+' 组虚构示例；报价并非平台实时价格')
+  };
+  function clearPurchase(){for(const f of purchaseFields)$('p'+f[0].toUpperCase()+f.slice(1)).value='';$('pDate').value=day();$('pEditId').value='';$('pId').disabled=false;$('pSave').textContent='新增采购需求';$('pCancel').hidden=true}
+  $('pCancel').onclick=clearPurchase;
+  $('pSave').onclick=()=>{
+    let data=Object.fromEntries(purchaseFields.map(f=>[f,$('p'+f[0].toUpperCase()+f.slice(1)).value.trim()]));data.qty=Number(data.qty);data.budget=data.budget===''?'':Number(data.budget);
+    if(!data.id||!data.name||!data.spec||!data.unit||!data.date||!Number.isInteger(data.qty)||data.qty<=0)return toast('请填编号、日期、名称、规格、统一单位和正整数数量');
+    if(data.budget!==''&&(!Number.isFinite(data.budget)||data.budget<0))return toast('预算不能是负数');
+    if(data.due&&data.due<data.date)return toast('到货日不能早于申请日期');
+    let editing=$('pEditId').value,old=db.procurements.find(p=>p.id===editing);
+    if(editing&&!old)return toast('记录已不存在，请重新填写');
+    if(!editing&&db.procurements.some(p=>p.id===data.id))return toast('需求编号已存在');
+    if(old&&(old.decision==='已批准'||(old.receipts||[]).length)&&(old.spec!==data.spec||old.unit!==data.unit||Number(old.qty)!==data.qty))return toast('已经批准或入库，不能更改规格、单位和数量；请新建需求');
+    let entry=old?{...old,...data}:{...data,status:'待询价',quotes:[],receipts:[],selectedQuoteId:'',recommendation:'',approver:'',decision:'',orderNo:'',actualPaid:''};
+    if(savePurchaseData({...db,procurements:old?db.procurements.map(p=>p.id===editing?entry:p):[...db.procurements,entry]},old?'采购需求已修改':'采购需求已保存'))clearPurchase()
+  };
+  $('pList').addEventListener('click',e=>{
+    let button=e.target.closest('[data-p-action]');if(!button)return;
+    let action=button.dataset.pAction,p=db.procurements.find(x=>x.id===button.dataset.p);if(!p)return;
+    if(action==='edit'){$('pEditId').value=p.id;for(const f of purchaseFields)$('p'+f[0].toUpperCase()+f.slice(1)).value=p[f]??'';$('pId').disabled=true;$('pSave').textContent='保存需求修改';$('pCancel').hidden=false;window.scrollTo({top:0,behavior:'smooth'});return}
+    if(action==='delete'){if((p.receipts||[]).length)return toast('已产生入库流水，请保留采购记录');if(!confirm('删除采购需求“'+p.id+'”及全部报价？'))return;savePurchaseData({...db,procurements:db.procurements.filter(x=>x.id!==p.id)},'采购需求已删除');return}
+    let quotes=p.quotes||[],quote=quotes.find(q=>q.id===button.dataset.q),form=button.closest('details')?.querySelector('[data-p-form="quote"]');
+    if(action==='editQuote'&&quote){for(let [field,value] of Object.entries(quote))if(form.elements.namedItem(field))form.elements.namedItem(field).value=value??'';form.elements.namedItem('quoteId').value=quote.id;form.scrollIntoView({behavior:'smooth',block:'center'});return}
+    if(action==='deleteQuote'&&quote){if(p.selectedQuoteId===quote.id&&p.decision==='已批准')return toast('已批准的报价不能删除');if(!confirm('删除这条报价记录？'))return;let changed={...p,quotes:quotes.filter(q=>q.id!==quote.id)};if(changed.selectedQuoteId===quote.id)changed.selectedQuoteId='';savePurchaseData({...db,procurements:db.procurements.map(x=>x.id===p.id?changed:x)},'报价已删除');return}
+    if(action==='saveQuote'){
+      let val=n=>String(form.elements.namedItem(n).value||'').trim(),packSize=Number(val('packSize')),packQty=Number(val('packQty')),price=purchaseNumber(val('price')),shipping=purchaseNumber(val('shipping')||0),discount=purchaseNumber(val('discount')||0),url=val('url'),qid=val('quoteId');
+      if(!val('platform')||!val('supplier')||!val('spec')||!val('packUnit')||!Number.isInteger(packSize)||packSize<1||!Number.isInteger(packQty)||packQty<1||val('price')===''||![price,shipping,discount].every(Number.isFinite))return toast('请填商家、规格、单位、正整数数量和非负金额');
+      if(discount>price*packQty+shipping)return toast('优惠不能超过商品价格与运费之和');
+      if(url&&!/^https:\/\/[^\s]+$/i.test(url))return toast('商品链接应以 https:// 开头；也可以留空');
+      if(qid&&!quote)return toast('报价已不存在，请重新打开记录');
+      if(qid&&p.selectedQuoteId===qid&&p.decision==='已批准')return toast('已批准的报价不能修改，请另建采购需求');
+      let entry={id:qid||purchaseId()+'-BJ',platform:val('platform'),supplier:val('supplier'),url,quotedAt:val('quotedAt'),spec:val('spec'),packSize,packUnit:val('packUnit'),packQty,price,shipping,discount,invoice:val('invoice'),delivery:val('delivery'),fit:val('fit'),note:val('note')};
+      let changed={...p,quotes:qid?quotes.map(q=>q.id===qid?entry:q):[...quotes,entry],status:p.decision==='已批准'?p.status:'比价中'};
+      savePurchaseData({...db,procurements:db.procurements.map(x=>x.id===p.id?changed:x)},'报价已保存');return
+    }
+    if(action==='saveDecision'){
+      let f=button.closest('form'),v=n=>String(f.elements.namedItem(n).value||'').trim(),chosen=quotes.find(q=>q.id===v('selectedQuoteId')),decision=v('decision');
+      if((p.receipts||[]).length&&decision!=='已批准')return toast('已验收入库，审批状态不能改为未批准');
+      if((p.receipts||[]).length&&v('selectedQuoteId')!==p.selectedQuoteId)return toast('已有到货流水，不能改选另一家报价');
+      if(decision==='已批准'&&(!chosen||!v('approver')||!v('recommendation')))return toast('批准前请填选定报价、审批人和推荐理由');
+      if(decision==='已批准'&&(chosen.fit!=='符合（已人工核对）'||chosen.invoice==='待核实'||chosen.invoice==='无法开票'||quoteUnits(chosen)!==Number(p.qty)))return toast('请先核对规格／数量／发票与交期，标明符合后再登记批准');
+      if(decision==='已批准'&&quotes.length<3&&!v('recommendation').includes('不足三家'))return toast('少于三家，请在推荐理由里说明“不足三家”的原因');
+      let changed={...p,selectedQuoteId:chosen?.id||'',approver:v('approver'),recommendation:v('recommendation'),decision,status:decision==='已批准'?(p.receipts||[]).length?p.status:'已批准':decision==='未批准'?'未批准':'待审批'};
+      savePurchaseData({...db,procurements:db.procurements.map(x=>x.id===p.id?changed:x)},'审批记录已保存（请以实际审批为准）');return
+    }
+    if(action==='receive'){
+      if(p.decision!=='已批准')return toast('请先记录真实的批准结论');
+      let f=button.closest('form'),n=Number(f.elements.namedItem('receivedQty').value),date=f.elements.namedItem('receivedDate').value,order=f.elements.namedItem('orderNo').value.trim(),paid=f.elements.namedItem('actualPaid').value.trim(),left=availablePurchaseQty(p);
+      if(!Number.isInteger(n)||n<1||n>left||!date||!order)return toast('请输入不超过待收数量的正整数、验收日期和订单号');
+      if(paid!==''&&(!Number.isFinite(Number(paid))||Number(paid)<0))return toast('实付金额应为非负数');
+      let stockId='S-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),name=p.name+'（'+p.spec+'）',receipt={id:'R-'+stockId,date,qty:n,orderNo:order,stockId},changed={...p,orderNo:order,actualPaid:paid,receipts:[...(p.receipts||[]),receipt],status:n===left?'已验收入库':'部分到货'};
+      let stock={id:stockId,name,type:'in',qty:n,unit:p.unit,person:p.requester||'采购入库',date,note:'采购需求 '+p.id+'；订单 '+order};
+      if(!confirm('确认已实际验收 '+n+' '+p.unit+'？保存后会同时生成一笔用品入库流水。'))return;
+      savePurchaseData({...db,procurements:db.procurements.map(x=>x.id===p.id?changed:x),stock:[...db.stock,stock]},'验收入库已保存，用品台账同步增加 '+n+' '+p.unit)
+    }
+  });
+  $('pExport').onclick=()=>{
+    let heads=['需求编号','申请日期','名称','规格','统一单位','需求数量','预算','需求状态','申请人','希望到货','报价编号','报价平台','供应商','商品链接','询价日期','报价规格','每报价单位含统一单位数','报价单位','报价数量','报价单位价格','运费','优惠','总到手价','统一单位数量','每统一单位价格','发票','交期','核对情况','报价备注','选定报价编号','推荐理由','审批人','审批结果','订单号','实付金额','已入库数量','入库流水编号'];
+    const csv=v=>{let s=String(v??'');if(/^[\s]*[=+@-]/.test(s)&&!/^-[0-9.]+$/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+    let lines=[heads.map(csv).join(',')];for(const p of db.procurements){let received=(p.receipts||[]).reduce((n,r)=>n+Number(r.qty||0),0);for(const q of (p.quotes?.length?p.quotes:[null])){let cells=[p.id,p.date,p.name,p.spec,p.unit,p.qty,p.budget,p.status,p.requester,p.due,q?.id,q?.platform,q?.supplier,q?.url,q?.quotedAt,q?.spec,q?.packSize,q?.packUnit,q?.packQty,q?.price,q?.shipping,q?.discount,q?money(quoteTotal(q)):'',q?quoteUnits(q):'',q?money(quoteTotal(q)/quoteUnits(q)):'',q?.invoice,q?.delivery,q?.fit,q?.note,p.selectedQuoteId,p.recommendation,p.approver,p.decision,p.orderNo,p.actualPaid,received,(p.receipts||[]).map(r=>r.stockId).join('；')];lines.push(cells.map(csv).join(','))}}
+    downloadBlob(new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),'行政采购比价-'+day()+'.csv');toast('采购比价 CSV 已导出')
+  };
   let editingSample=null;
   function renderWriting(){
     let selected=$('wSample').value;
@@ -303,7 +411,7 @@
     if(button.dataset.exampleEdit){editingSample=id;$('wSampleName').value=entry.title;$('wSampleType').value=entry.type;$('wSampleText').value=entry.body;$('wSampleName').focus()}
     if(button.dataset.exampleDelete&&confirm('删除例文“'+entry.title+'”？')){db.writingSamples=db.writingSamples.filter(x=>x.id!==id);persist();renderWriting()}
   };
-  const cols={tasks:['id','title','due','owner','next','done'],contracts:['id','name','due','days','owner','next','done'],stock:['id','name','type','qty','person','date','note'],guides:['id','category','title','steps','reason','contact','phone','location','materials','due','days']};
+  const cols={tasks:['id','title','due','owner','next','done'],contracts:['id','name','due','days','owner','next','done'],stock:['id','name','type','qty','person','date','note','unit'],guides:['id','category','title','steps','reason','contact','phone','location','materials','due','days']};
   const csvField=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
   function exportCSV(type){let rows=[cols[type].join(','),...db[type].map(row=>cols[type].map(k=>csvField(row[k])).join(','))];let blob=new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=({tasks:'行政待办',contracts:'合同节点',stock:'用品流水',guides:'流程提示'})[type]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   function parseCSV(text){text=text.replace(/^\ufeff/,'');let records=[],row=[],field='',quotes=false;for(let i=0;i<text.length;i++){let c=text[i];if(quotes){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quotes=false;else field+=c}else if(c==='"')quotes=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));records.push(row);row=[];field=''}else field+=c}if(field||row.length){row.push(field.replace(/\r$/,''));records.push(row)}return records.filter(r=>r.some(x=>x.trim()))}
@@ -361,7 +469,7 @@
     }
     return rows;
   }
-   const backupObject=()=>({format:'admin-workbench-backup',version:2,exportedAt:new Date().toISOString(),data:db});
+   const backupObject=()=>({format:'admin-workbench-backup',version:3,exportedAt:new Date().toISOString(),data:db});
    const backupText=()=>JSON.stringify(backupObject(),null,2);
    function downloadBlob(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
    $('downloadBackup').onclick=()=>downloadBlob(new Blob([backupText()],{type:'application/json;charset=utf-8'}),'行政工作台-完整数据备份-'+day()+'.json');
@@ -377,25 +485,25 @@
    }
    $('downloadPackage').onclick=async()=>{let button=$('downloadPackage');button.disabled=true;
      try{let html;try{let r=await fetch(new URL('index.html',location.href),{cache:'no-store'});if(!r.ok)throw Error('fetch');html=await r.text()}catch{html='<!doctype html>\n'+document.documentElement.outerHTML}
-       let instructions='行政工作台完整迁移包\r\n\r\n1. 在新电脑打开 https://ranran1001.github.io/admin-workbench/ 。\r\n2. 点击“导入与导出”，选择压缩包内的 backup.json。\r\n3. 预览四类台账及例文库条数后确认恢复。\r\n4. index.html 是网页程序副本；qr.svg 是二维码。本地打开 HTML 可能限制存储，建议从网址恢复使用。\r\n5. 已配置云端时，恢复后会在本机保存并等待云端确认；出现冲突时请先备份再选版本。不要把 backup.json 上传到公开仓库。\r\n6. 到期日历需另行下载并导入设备日历；浏览器通知权限不能随数据迁移。\r\n';
+       let instructions='行政工作台完整迁移包\r\n\r\n1. 在新电脑打开 https://ranran1001.github.io/admin-workbench/ 。\r\n2. 点击“导入与导出”，选择压缩包内的 backup.json。\r\n3. 预览四类原有台账、例文和采购需求条数后确认恢复。\r\n4. index.html 是网页程序副本；qr.svg 是二维码。本地打开 HTML 可能限制存储，建议从网址恢复使用。\r\n5. 已配置云端时，恢复后会在本机保存并等待云端确认；出现冲突时请先备份再选版本。不要把 backup.json 上传到公开仓库。\r\n6. 到期日历需另行下载并导入设备日历；浏览器通知权限不能随数据迁移。\r\n';
        let files=[['index.html',html],['backup.json',backupText()],['README.txt',instructions]];
        try{let q=await fetch(new URL('qr.svg',location.href),{cache:'no-store'});if(q.ok)files.push(['qr.svg',await q.text()])}catch{}
        downloadBlob(zipFiles(files),'行政工作台-完整迁移包-'+day()+'.zip');toast('完整迁移包已下载')
      }catch{toast('打包失败，请先单独下载数据 JSON')}finally{button.disabled=false}
    };
    let pendingRestore=null;
-   function validBackup(x){return x&&x.format==='admin-workbench-backup'&&[1,2].includes(x.version)&&x.data&&typeof x.data==='object'&&['tasks','contracts','stock','guides'].every(k=>Array.isArray(x.data[k])&&x.data[k].length<=100000&&x.data[k].every(v=>v&&typeof v==='object'&&!Array.isArray(v)&&typeof v.id==='string'&&v.id.length>0))&&(x.version===1||Array.isArray(x.data.writingSamples)&&x.data.writingSamples.length<=10000&&x.data.writingSamples.every(v=>v&&typeof v.id==='string'&&typeof v.body==='string'))}
+   function validBackup(x){return x&&x.format==='admin-workbench-backup'&&[1,2,3].includes(x.version)&&x.data&&typeof x.data==='object'&&['tasks','contracts','stock','guides'].every(k=>Array.isArray(x.data[k])&&x.data[k].length<=100000&&x.data[k].every(v=>v&&typeof v==='object'&&!Array.isArray(v)&&typeof v.id==='string'&&v.id.length>0))&&(x.version===1||Array.isArray(x.data.writingSamples)&&x.data.writingSamples.length<=10000&&x.data.writingSamples.every(v=>v&&typeof v.id==='string'&&typeof v.body==='string'))&&(x.version<3||Array.isArray(x.data.procurements)&&x.data.procurements.length<=10000&&x.data.procurements.every(v=>v&&typeof v.id==='string'&&typeof v.name==='string'&&Array.isArray(v.quotes)&&v.quotes.length<=100))}
    $('restoreFile').onchange=()=>{pendingRestore=null;$('restorePreview').replaceChildren()};
    $('previewRestore').onclick=async()=>{let f=$('restoreFile').files[0];if(!f)return toast('请先选择备份 JSON 文件');if(f.size>20e6)return toast('备份文件不能超过 20 MB');
-     try{let x=JSON.parse(await f.text());if(!validBackup(x))return toast('文件不是兼容的行政工作台完整备份');if(x.version===1)x.data.writingSamples=writingExamples();pendingRestore=x;
-       let labels={tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示',writingSamples:'例文'};
-       $('restorePreview').innerHTML='<div class="note">备份时间：'+safe(x.exportedAt||'未知')+'<br>'+Object.keys(labels).map(k=>labels[k]+' '+x.data[k].length+' 条').join(' · ')+'<br>恢复将替换当前浏览器的四类台账和例文库。</div><button class="primary" id="confirmRestore">确认恢复此备份</button>'
+     try{let x=JSON.parse(await f.text());if(!validBackup(x))return toast('文件不是兼容的行政工作台完整备份');if(x.version===1)x.data.writingSamples=writingExamples();if(x.version<3)x.data.procurements=[];pendingRestore=x;
+       let labels={tasks:'待办',contracts:'合同',stock:'用品流水',guides:'流程提示',writingSamples:'例文',procurements:'采购需求'};
+       $('restorePreview').innerHTML='<div class="note">备份时间：'+safe(x.exportedAt||'未知')+'<br>'+Object.keys(labels).map(k=>labels[k]+' '+x.data[k].length+' 条').join(' · ')+'<br>恢复将替换当前浏览器的四类台账、例文库及采购记录。</div><button class="primary" id="confirmRestore">确认恢复此备份</button>'
      }catch{toast('无法读取备份 JSON 文件')}
    };
    $('restorePreview').onclick=e=>{if(e.target.id!=='confirmRestore'||!pendingRestore)return;
      if(!confirm('这将覆盖此浏览器中的四类台账和例文库。请先下载当前备份，确定继续？'))return;
      try{localStorage.setItem(key,JSON.stringify(pendingRestore.data))}catch{return toast('浏览器无法保存数据，请检查存储权限或空间')}
-     db=pendingRestore.data;pendingRestore=null;$('restorePreview').replaceChildren();$('restoreFile').value='';render();markLocalChange();toast('台账与例文库已恢复')
+     db=pendingRestore.data;pendingRestore=null;$('restorePreview').replaceChildren();$('restoreFile').value='';render();markLocalChange();toast('台账、例文及采购记录已恢复')
    };
 let pending=null;
   $('importFile').onchange=$('importType').onchange=()=>{pending=null;$('importPreview').replaceChildren()};
@@ -406,14 +514,14 @@ let pending=null;
     let isXlsx=/\.xlsx$/i.test(f.name),isCSV=/\.csv$/i.test(f.name);if(!isXlsx&&!isCSV)return toast('请选择 .csv 或 .xlsx 文件');
     if(f.size>(isXlsx?8e6:2e6))return toast('文件过大，请拆分后导入');
     try{
-      let rows=isXlsx?await parseXLSX(f):parseCSV(await f.text()),header=(rows.shift()||[]).map(x=>String(x??'').trim()),missing=cols[type].filter(c=>!header.includes(c));
+       let rows=isXlsx?await parseXLSX(f):parseCSV(await f.text()),header=(rows.shift()||[]).map(x=>String(x??'').trim()),missing=cols[type].filter(c=>!(type==='stock'&&c==='unit')&&!header.includes(c));
       if(missing.length)throw Error('列名不匹配，缺少：'+missing.join('、')+'；请先导出同类 CSV 查看列名');
-      let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,String(r[header.indexOf(c)]??'').trim()]))).filter(x=>x.id);
+       let items=rows.map(r=>Object.fromEntries(cols[type].map(c=>[c,c==='unit'&&!header.includes(c)?'件':String(r[header.indexOf(c)]??'').trim()]))).filter(x=>x.id);
       let seen=new Set(db[type].map(x=>x.id)),newItems=items.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true});
       for(let [i,x] of newItems.entries()){
         for(let field of ['due','date'])if(field in x&&(!validDate(x[field])||(field==='date'&&!x[field])))throw Error('第 '+(i+2)+' 条新记录的 '+field+' 日期无效，请用 YYYY-MM-DD');
         if(type==='tasks'||type==='contracts'){if(!x.due)throw Error('待办和合同必须填写 due 日期');x.done=/^(true|1|是|已完成)$/i.test(x.done)}
-        if(type==='stock'){x.qty=Number(x.qty);if(!Number.isInteger(x.qty)||x.qty<=0||!['in','out'].includes(x.type))throw Error('用品数量须为正整数，type 须为 in 或 out')}
+       if(type==='stock'){x.qty=Number(x.qty);x.unit=x.unit||'件';if(!Number.isInteger(x.qty)||x.qty<=0||!['in','out'].includes(x.type))throw Error('用品数量须为正整数，type 须为 in 或 out')}
         if(type==='contracts'||type==='guides'){x.days=Number(x.days||0);if(!Number.isInteger(x.days)||x.days<0)throw Error('提醒天数 days 须为非负整数')}
       }
       pending={type,items:newItems,file:f,name:f.name};
@@ -425,7 +533,7 @@ let pending=null;
     let data={...db,[pending.type]:[...db[pending.type],...pending.items]};try{localStorage.setItem(key,JSON.stringify(data))}catch{return toast('浏览器存储空间不足，导入未完成')}
     db=data;markLocalChange();render();toast('已导入 '+pending.items.length+' 条');pending=null;$('importPreview').replaceChildren();$('importFile').value='';
   });
-  $('resetBtn').onclick=()=>{if(!confirm('恢复示例数据将清除当前浏览器里的所有工作记录与例文，确定继续？'))return;db=sample();db.writingSamples=writingExamples();persist();render();toast('已恢复示例数据')};
+   $('resetBtn').onclick=()=>{if(!confirm('恢复示例数据将清除当前浏览器里的所有工作记录、例文与采购记录，确定继续？'))return;db=sample();db.writingSamples=writingExamples();persist();render();toast('已恢复示例数据')};
   // The browser saves first. Cloud confirmation is a separate, visible step.
   const cloudConfigKey='admin-workbench-cloud-config-v1';
   let cloudClient=null,cloudUser=null,cloudRow=null,cloudRevision=0,cloudReady=false,cloudDirty=false,cloudBusy=false,cloudConflict=false,cloudChannel=null,cloudTimer=null;
@@ -439,11 +547,12 @@ let pending=null;
     if(linked){cloudDirty=true;localStorage.setItem(cloudSetting('dirty'),'1');syncState(navigator.onLine?'本机已保存 · 等待云端确认':'本机已保存 · 离线待同步');clearTimeout(cloudTimer);cloudTimer=setTimeout(syncPush,0)}
     else syncState('已保存到本机 · 云端尚未连接')
   }
-  const validCloudData=data=>data&&['tasks','contracts','stock','guides','writingSamples'].every(k=>Array.isArray(data[k]));
-  function cloudCounts(data){return data?'待办 '+data.tasks?.length+'、合同 '+data.contracts?.length+'、用品 '+data.stock?.length+'、流程 '+data.guides?.length+'、例文 '+data.writingSamples?.length:'云端暂无记录'}
-  function cloudBackup(data,label){downloadBlob(new Blob([JSON.stringify({format:'admin-workbench-backup',version:2,exportedAt:new Date().toISOString(),data},null,2)],{type:'application/json'}),'行政工作台-'+label+'-'+day()+'.json')}
+   const validCloudData=data=>data&&['tasks','contracts','stock','guides','writingSamples'].every(k=>Array.isArray(data[k]))&&(!('procurements' in data)||Array.isArray(data.procurements));
+   function cloudCounts(data){return data?'待办 '+data.tasks?.length+'、合同 '+data.contracts?.length+'、用品 '+data.stock?.length+'、流程 '+data.guides?.length+'、例文 '+data.writingSamples?.length+'、采购 '+(data.procurements?.length||0):'云端暂无记录'}
+   function cloudBackup(data,label){downloadBlob(new Blob([JSON.stringify({format:'admin-workbench-backup',version:3,exportedAt:new Date().toISOString(),data:{...data,procurements:data.procurements||[]}},null,2)],{type:'application/json'}),'行政工作台-'+label+'-'+day()+'.json')}
   function applyCloud(row){
     if(!validCloudData(row.data)){syncState('云端数据格式不兼容，请先保留本机备份');return false}
+     row={...row,data:{...row.data,procurements:row.data.procurements||[]}};
     try{localStorage.setItem(key,JSON.stringify(row.data))}catch{syncState('本机存储空间不足，云端数据未载入');return false}
     db=row.data;cloudRow=row;cloudRevision=Number(row.revision);cloudDirty=false;cloudConflict=false;cloudReady=true;
     localStorage.setItem(cloudSetting('revision'),String(cloudRevision));localStorage.removeItem(cloudSetting('dirty'));localStorage.setItem(cloudSetting('linked'),'1');
